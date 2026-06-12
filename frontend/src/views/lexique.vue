@@ -1,0 +1,5 @@
+<template>
+  <div>Lexique</div>
+</template>
+<script setup lang="ts"></script>
+<style scoped></style>
