@@ -1,5 +1,5 @@
 <template>
-  <div class="Menu">
+  <div class="menu">
     <nav>
       <ul>
         <li><RouterLink to="/home">Home</RouterLink></li>
@@ -12,4 +12,10 @@
 <script setup lang="ts">
 import { RouterLink } from "vue-router"
 </script>
-<style scoped></style>
+<style scoped>
+.menu {
+  background-color: var(--color-darkpurple);
+  height: 68px;
+  width: 100%;
+}
+</style>
