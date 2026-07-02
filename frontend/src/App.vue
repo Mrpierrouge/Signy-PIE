@@ -25,7 +25,15 @@ import Menu from "./views/menu.vue"
   top: 2vh;
   height: 35px;
   mask-image: url("@/assets/logo.png");
-  mask-size: contain;
+  mask-size: cover;
   background-color: var(--color-darkpurple);
+}
+.content {
+  margin-top: 70px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 </style>
