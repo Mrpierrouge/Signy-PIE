@@ -6,4 +6,15 @@
   --color-lightyellow: #f3ded2;
   --color-black: #110003;
   --color-lightgray: #d9d9d9;
+
+  --font-family: Helvetica, Arial, sans-serif;
+
+  --font-size-h1: 24px;
+  --font-size-h2: 18px;
+  --font-size-h3: 16px;
+  --font-size-body: 12px;
+  --font-size-small: 10px;
+
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
 }
