@@ -46,13 +46,13 @@ const route = useRoute()
       mask-size: contain;
       background-color: black;
       &.home {
-        mask-image: url("@/assets/home.png");
+        mask-image: url("@/assets/icons/home.png");
       }
       &.profile {
-        mask-image: url("@/assets/user.png");
+        mask-image: url("@/assets/icons/user.png");
       }
       &.lexique {
-        mask-image: url("@/assets/book.png");
+        mask-image: url("@/assets/icons/book.png");
       }
       &.active {
         background-color: white;

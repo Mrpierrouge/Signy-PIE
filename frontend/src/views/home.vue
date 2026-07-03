@@ -12,7 +12,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import LessonCard from "@/components/lessonCard.vue"
+import LessonCard from "@/components/cards/lessonCard.vue"
 import { ref } from "vue"
 import type { Lesson } from "@/types/lesson"
 

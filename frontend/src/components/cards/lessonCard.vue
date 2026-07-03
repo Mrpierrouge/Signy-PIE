@@ -60,13 +60,13 @@ defineProps<{
       mask-size: cover;
       background-color: var(--color-black);
       &.icon_locked {
-        mask-image: url("@/assets/lock.png");
+        mask-image: url("@/assets/icons/lock.png");
       }
       &.icon_unlocked {
-        mask-image: url("@/assets/unlock.png");
+        mask-image: url("@/assets/icons/unlock.png");
       }
       &.icon_completed {
-        mask-image: url("@/assets/ok-hand.png");
+        mask-image: url("@/assets/icons/ok-hand.png");
       }
     }
   }
