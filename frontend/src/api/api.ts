@@ -1,0 +1,55 @@
+import type { Lesson, LessonWithWords } from "@/types/lesson"
+import type { Word } from "@/types/word"
+
+class API {
+  private baseUrl: string
+
+  constructor() {
+    this.baseUrl = "http://localhost:3000/api"
+  }
+
+  async getLessons(): Promise<Lesson[]> {
+    const response = await fetch(`${this.baseUrl}/lessons`)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch lessons: ${response.statusText}`)
+    }
+    return response.json()
+  }
+
+  async getLessonById(id: number): Promise<LessonWithWords> {
+    const response = await fetch(`${this.baseUrl}/lessons/${id}`)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch lesson with id ${id}: ${response.statusText}`)
+    }
+    return response.json()
+  }
+
+  async getWords(): Promise<Word[]> {
+    const response = await fetch(`${this.baseUrl}/words`)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch words: ${response.statusText}`)
+    }
+    return response.json()
+  }
+
+  async getWordById(id: number): Promise<{ word: Word }> {
+    const response = await fetch(`${this.baseUrl}/words/${id}`)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch word with id ${id}: ${response.statusText}`)
+    }
+    return response.json()
+  }
+
+  async tryWord(video: FormData): Promise<{ word: string }> {
+    const response = await fetch(`${this.baseUrl}/recordings`, {
+      method: "POST",
+      body: video,
+    })
+    if (!response.ok) {
+      throw new Error(`Failed to try word: ${response.statusText}`)
+    }
+    return response.json()
+  }
+}
+
+export const ApiClass = new API()

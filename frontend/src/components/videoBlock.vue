@@ -1,10 +1,6 @@
 <template>
   <div class="video-block">
-    <videoCard
-      ref="videoCardRef"
-      :video-src="videoSrc"
-      @recording-ready="onRecordingReady"
-    />
+    <videoCard ref="videoCardRef" :video-src="videoSrc" @recording-ready="onRecordingReady" />
     <button
       class="play-button"
       v-if="!videoCardRef?.cameraActive"
@@ -13,9 +9,7 @@
       A moi de jouer
     </button>
     <template v-else>
-      <button class="play-button" @click="videoCardRef?.stopCamera()">
-        Revenir à la vidéo
-      </button>
+      <button class="play-button" @click="videoCardRef?.stopCamera()">Revenir à la vidéo</button>
       <button
         class="play-button"
         v-if="!videoCardRef?.isRecording"
@@ -32,6 +26,7 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import VideoCard from "./cards/videoCard.vue"
+import { ApiClass } from "@/api/api.ts"
 
 defineProps<{
   videoSrc: string
@@ -42,16 +37,7 @@ const videoCardRef = ref<InstanceType<typeof VideoCard> | null>(null)
 async function onRecordingReady(blob: Blob) {
   const formData = new FormData()
   formData.append("recording", blob, "recording.webm")
-
-  try {
-    // TODO: adapter l'URL une fois le backend disponible
-    await fetch("/api/recordings", {
-      method: "POST",
-      body: formData,
-    })
-  } catch (error) {
-    console.error("Échec de l'envoi de l'enregistrement", error)
-  }
+  const result = await ApiClass.tryWord(formData)
 }
 </script>
 <style scoped>
