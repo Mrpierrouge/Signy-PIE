@@ -18,6 +18,7 @@
       @loadedmetadata="onSourceLoaded"
     />
 
+    <div v-if="isRecording" class="recording-indicator">● REC</div>
     <div v-if="errorMessage" class="camera-error">{{ errorMessage }}</div>
   </div>
 </template>
@@ -28,12 +29,19 @@ defineProps<{
   videoSrc?: string
 }>()
 
+const emit = defineEmits<{
+  "recording-ready": [blob: Blob]
+}>()
+
 const cameraVideo = ref<HTMLVideoElement | null>(null)
 const sourceVideo = ref<HTMLVideoElement | null>(null)
 const cameraActive = ref(false)
+const isRecording = ref(false)
 const errorMessage = ref("")
 const aspectRatio = ref("1 / 1")
 let stream: MediaStream | null = null
+let mediaRecorder: MediaRecorder | null = null
+let recordedChunks: Blob[] = []
 
 function onSourceLoaded() {
   if (sourceVideo.value) {
@@ -55,14 +63,39 @@ async function activateCamera() {
 }
 
 function stopCamera() {
+  stopRecording()
   stream?.getTracks().forEach((track) => track.stop())
   stream = null
   cameraActive.value = false
 }
 
+function startRecording() {
+  if (!stream || isRecording.value) return
+
+  recordedChunks = []
+  mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" })
+  mediaRecorder.ondataavailable = (event) => {
+    if (event.data.size > 0) {
+      recordedChunks.push(event.data)
+    }
+  }
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(recordedChunks, { type: "video/webm" })
+    emit("recording-ready", blob)
+  }
+  mediaRecorder.start()
+  isRecording.value = true
+}
+
+function stopRecording() {
+  if (!isRecording.value) return
+  mediaRecorder?.stop()
+  isRecording.value = false
+}
+
 onBeforeUnmount(stopCamera)
 
-defineExpose({ activateCamera, stopCamera, cameraActive })
+defineExpose({ activateCamera, stopCamera, startRecording, stopRecording, cameraActive, isRecording })
 </script>
 <style scoped>
 .video-card {
@@ -94,6 +127,18 @@ defineExpose({ activateCamera, stopCamera, cameraActive })
     font-size: 13px;
     text-align: center;
     padding: 6px 10px;
+    border-radius: 10px;
+  }
+
+  .recording-indicator {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background-color: rgba(17, 0, 3, 0.7);
+    color: #ff4d4d;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 4px 8px;
     border-radius: 10px;
   }
 }
