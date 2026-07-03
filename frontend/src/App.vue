@@ -24,7 +24,7 @@ import Menu from "./views/menu.vue"
   position: absolute;
   top: 2vh;
   height: 35px;
-  mask-image: url("@/assets/logo.png");
+  mask-image: url("@/assets/icons/logo.png");
   mask-size: cover;
   background-color: var(--color-darkpurple);
 }

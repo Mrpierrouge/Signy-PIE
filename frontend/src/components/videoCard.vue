@@ -1,24 +1,16 @@
 <template>
   <div class="card video-card">
-    <video v-if="videoSrc" class="media" :src="videoSrc" controls playsinline />
+    <video
+      v-show="cameraActive"
+      ref="cameraVideo"
+      class="media mirrored"
+      autoplay
+      muted
+      playsinline
+    />
+    <video v-if="!cameraActive" class="media" :src="videoSrc" controls playsinline />
 
-    <template v-else>
-      <video
-        v-show="cameraActive"
-        ref="cameraVideo"
-        class="media mirrored"
-        autoplay
-        muted
-        playsinline
-      />
-
-      <div v-if="!cameraActive" class="camera-prompt">
-        <div class="text">
-          {{ errorMessage || "Autoriser l'accès à la caméra" }}
-        </div>
-        <button class="camera-button" @click="requestCamera">Activer la caméra</button>
-      </div>
-    </template>
+    <div v-if="errorMessage" class="camera-error">{{ errorMessage }}</div>
   </div>
 </template>
 <script setup lang="ts">
@@ -33,7 +25,7 @@ const cameraActive = ref(false)
 const errorMessage = ref("")
 let stream: MediaStream | null = null
 
-async function requestCamera() {
+async function activateCamera() {
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: true })
     if (cameraVideo.value) {
@@ -54,12 +46,12 @@ function stopCamera() {
 
 onBeforeUnmount(stopCamera)
 
-defineExpose({ stopCamera })
+defineExpose({ activateCamera, stopCamera, cameraActive })
 </script>
 <style scoped>
 .video-card {
   background-color: var(--color-lightgray);
-  width: 90%;
+  width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 20px;
   overflow: hidden;
@@ -77,36 +69,17 @@ defineExpose({ stopCamera })
     }
   }
 
-  .camera-prompt {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    color: var(--color-black);
-    padding: 20px;
+  .camera-error {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    right: 12px;
+    background-color: rgba(17, 0, 3, 0.7);
+    color: white;
+    font-size: 13px;
     text-align: center;
-
-    .camera-icon {
-      width: 40px;
-      height: 40px;
-      color: var(--color-black);
-    }
-
-    .text {
-      font-size: 14px;
-    }
-
-    .camera-button {
-      background-color: var(--color-darkpurple);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 8px 16px;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+    padding: 6px 10px;
+    border-radius: 10px;
   }
 }
 </style>
