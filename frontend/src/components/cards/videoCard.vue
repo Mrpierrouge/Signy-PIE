@@ -1,5 +1,5 @@
 <template>
-  <div class="card video-card">
+  <div class="card video-card" :style="{ aspectRatio }">
     <video
       v-show="cameraActive"
       ref="cameraVideo"
@@ -8,7 +8,15 @@
       muted
       playsinline
     />
-    <video v-if="!cameraActive" class="media" :src="videoSrc" controls playsinline />
+    <video
+      v-if="!cameraActive"
+      ref="sourceVideo"
+      class="media"
+      :src="videoSrc"
+      controls
+      playsinline
+      @loadedmetadata="onSourceLoaded"
+    />
 
     <div v-if="errorMessage" class="camera-error">{{ errorMessage }}</div>
   </div>
@@ -21,9 +29,17 @@ defineProps<{
 }>()
 
 const cameraVideo = ref<HTMLVideoElement | null>(null)
+const sourceVideo = ref<HTMLVideoElement | null>(null)
 const cameraActive = ref(false)
 const errorMessage = ref("")
+const aspectRatio = ref("1 / 1")
 let stream: MediaStream | null = null
+
+function onSourceLoaded() {
+  if (sourceVideo.value) {
+    aspectRatio.value = `${sourceVideo.value.videoWidth} / ${sourceVideo.value.videoHeight}`
+  }
+}
 
 async function activateCamera() {
   try {
@@ -52,7 +68,6 @@ defineExpose({ activateCamera, stopCamera, cameraActive })
 .video-card {
   background-color: var(--color-lightgray);
   width: 100%;
-  aspect-ratio: 1 / 1;
   border-radius: 20px;
   overflow: hidden;
   position: relative;
