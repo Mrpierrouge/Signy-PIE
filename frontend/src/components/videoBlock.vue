@@ -1,13 +1,21 @@
 <template>
   <div class="video-block">
     <videoCard ref="videoCardRef" :video-src="videoSrc" />
-    <button class="play-button" @click="videoCardRef?.activateCamera()">A moi de jouer</button>
-    <button class="play-button" @click="videoCardRef?.stopCamera()">Revenir à la vidéo</button>
+    <button
+      class="play-button"
+      v-if="!videoCardRef?.cameraActive"
+      @click="videoCardRef?.activateCamera()"
+    >
+      A moi de jouer
+    </button>
+    <button class="play-button" v-else @click="videoCardRef?.stopCamera()">
+      Revenir à la vidéo
+    </button>
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from "vue"
-import VideoCard from "./videoCard.vue"
+import VideoCard from "./cards/videoCard.vue"
 
 defineProps<{
   videoSrc: string
