@@ -1,11 +1,32 @@
 <template>
   <div>Lexique</div>
-  <VideoBlock :video-src="franceVideo" />
-  <VideoBlock :video-src="franceVideo2" />
+  <div class="word-list">
+    <WordBlock v-for="word in words" :key="word.id" :word="word" />
+  </div>
 </template>
 <script setup lang="ts">
-import VideoBlock from "@/components/videoBlock.vue"
-import franceVideo from "@/assets/videos/france_nprop_10_1.mp4"
-import franceVideo2 from "@/assets/videos/france_nprop_10_6.mp4"
+import { onMounted, ref } from "vue"
+import WordBlock from "@/components/wordBlock.vue"
+import { ApiClass } from "@/api/api"
+import type { Word } from "@/types/word"
+
+const words = ref<Word[]>([])
+
+async function fetchAllWords() {
+  try {
+    words.value = await ApiClass.getWords()
+  } catch (error) {
+    console.error("Error fetching words:", error)
+  }
+}
+
+onMounted(fetchAllWords)
 </script>
-<style scoped></style>
+<style scoped>
+.word-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+</style>

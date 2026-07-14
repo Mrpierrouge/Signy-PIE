@@ -2,13 +2,13 @@ import type { Lesson, LessonWithWords } from "@/types/lesson"
 import type { Word } from "@/types/word"
 
 class API {
-  private baseUrl: string
+  readonly baseUrl: string
 
   constructor() {
-    this.baseUrl = "http://localhost:3000/api"
+    this.baseUrl = "http://localhost:8000"
   }
 
-  async getLessons(): Promise<Lesson[]> {
+  async getLessons(): Promise<LessonWithWords[]> {
     const response = await fetch(`${this.baseUrl}/lessons`)
     if (!response.ok) {
       throw new Error(`Failed to fetch lessons: ${response.statusText}`)
@@ -38,6 +38,11 @@ class API {
       throw new Error(`Failed to fetch word with id ${id}: ${response.statusText}`)
     }
     return response.json()
+  }
+
+  // TODO: revert to `${this.baseUrl}${video}` once video files are served through the API
+  getVideoUrl(video: string): string {
+    return `backend${video}`
   }
 
   async tryWord(video: FormData): Promise<{ word: string }> {
