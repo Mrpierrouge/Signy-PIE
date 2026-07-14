@@ -1,0 +1,42 @@
+services:
+
+  # ── PostgreSQL ──────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: signy
+      POSTGRES_USER: signy
+      POSTGRES_PASSWORD: signy
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U signy -d signy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── FastAPI backend ─────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg2://signy:signy@db:5432/signy
+      AI_MODEL_PATH: /app/lsf_model.onnx
+      # Comma-separated list — must match the order used during training
+      AI_LABELS: bonjour,merci,au_revoir,oui,non,salut,pardon,svp,aide,merci_bien
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # Bind-mount source for hot-reload during development.
+      # Remove in production and let the image's COPY handle it.
+      - ./backend:/app
+
+volumes:
+  postgres_data:
