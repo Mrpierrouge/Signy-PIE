@@ -1,22 +1,29 @@
 <template>
   <nav class="menu">
-    <ul>
-      <li>
-        <RouterLink to="/home">
-          <div class="menu-item home" :class="{ active: route.path === '/home' }"></div>
-        </RouterLink>
-      </li>
-      <li>
-        <RouterLink to="/lexique">
-          <div class="menu-item lexique" :class="{ active: route.path === '/lexique' }"></div>
-        </RouterLink>
-      </li>
-      <li>
-        <RouterLink to="/profile">
-          <div class="menu-item profile" :class="{ active: route.path === '/profile' }"></div>
-        </RouterLink>
-      </li>
-    </ul>
+    <RouterLink
+      to="/home"
+      class="menu-item"
+      :class="{ active: route.path === '/home' }"
+    >
+      <div class="icon home" />
+      <span>Accueil</span>
+    </RouterLink>
+    <RouterLink
+      to="/lexique"
+      class="menu-item"
+      :class="{ active: route.path === '/lexique' }"
+    >
+      <div class="icon lexique" />
+      <span>Dictionnaire</span>
+    </RouterLink>
+    <RouterLink
+      to="/profile"
+      class="menu-item"
+      :class="{ active: route.path === '/profile' }"
+    >
+      <div class="icon profile" />
+      <span>Mon compte</span>
+    </RouterLink>
   </nav>
 </template>
 <script setup lang="ts">
@@ -27,37 +34,52 @@ const route = useRoute()
 <style scoped>
 .menu {
   position: fixed;
-  bottom: -68px;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  border-radius: 75px;
-  background-color: var(--color-darkpurple);
-  height: 122px;
-  width: 100%;
-  border: 1px solid black;
-  ul {
-    flex-grow: 1;
-    display: flex;
-    justify-content: space-around;
-    padding: 0 20vw;
-    list-style: none;
-    .menu-item {
-      width: 24px;
-      height: 24px;
-      mask-size: contain;
-      background-color: black;
-      &.home {
-        mask-image: url("@/assets/icons/home.png");
-      }
-      &.profile {
-        mask-image: url("@/assets/icons/user.png");
-      }
-      &.lexique {
-        mask-image: url("@/assets/icons/book.png");
-      }
-      &.active {
-        background-color: white;
-      }
-    }
-  }
+  align-items: center;
+  justify-content: space-around;
+  gap: 8px;
+  background-color: var(--color-black);
+  border-radius: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  width: calc(100% - 32px);
+  max-width: 400px;
+  padding: 14px 12px;
+}
+
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.4);
+  text-decoration: none;
+  font-family: var(--font-family);
+  font-size: var(--font-size-small);
+}
+
+.menu-item.active {
+  color: var(--color-pink);
+}
+
+.menu-item .icon {
+  width: 22px;
+  height: 22px;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  background-color: currentColor;
+}
+
+.menu-item .icon.home {
+  mask-image: url("@/assets/icons/home.png");
+}
+.menu-item .icon.profile {
+  mask-image: url("@/assets/icons/user.png");
+}
+.menu-item .icon.lexique {
+  mask-image: url("@/assets/icons/book.png");
 }
 </style>
