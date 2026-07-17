@@ -18,3 +18,10 @@
   --font-weight-regular: 400;
   --font-weight-bold: 700;
 }
+
+body {
+  margin: 0;
+  background-color: var(--color-black);
+  color: white;
+  font-family: var(--font-family);
+}
