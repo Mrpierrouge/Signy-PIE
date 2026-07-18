@@ -19,11 +19,9 @@
         v-for="(lesson, index) in lessons"
         :key="lesson.id"
         :lesson="lesson"
-        :featured="index === 0"
-        :color-index="index - 1"
-        :description="introDescription"
+        :color-index="index"
         :selected="selectedLesson === lesson.id"
-        @click="index === 0 ? startLesson(lesson.id) : selectLesson(lesson)"
+        @click="selectLesson(lesson)"
         @start="startLesson(lesson.id)"
       />
     </div>
@@ -42,9 +40,6 @@ import { ApiClass } from "@/api/api"
 import type { Lesson, LessonWithWords } from "@/types/lesson"
 
 const points = ref(440)
-
-const introDescription =
-  "Découvrez les premiers signes essentiels pour débuter en LSF et apprendre à communiquer simplement."
 
 // Placeholder lessons so the list doesn't look empty while only a couple of
 // real lessons exist in the backend. Negative ids keep them from ever

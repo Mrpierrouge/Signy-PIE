@@ -1,26 +1,14 @@
 <template>
   <nav class="menu">
-    <RouterLink
-      to="/home"
-      class="menu-item"
-      :class="{ active: route.path === '/home' }"
-    >
+    <RouterLink to="/home" class="menu-item" :class="{ active: route.path === '/home' }">
       <div class="icon home" />
       <span>Accueil</span>
     </RouterLink>
-    <RouterLink
-      to="/lexique"
-      class="menu-item"
-      :class="{ active: route.path === '/lexique' }"
-    >
+    <RouterLink to="/lexique" class="menu-item" :class="{ active: route.path === '/lexique' }">
       <div class="icon lexique" />
       <span>Dictionnaire</span>
     </RouterLink>
-    <RouterLink
-      to="/profile"
-      class="menu-item"
-      :class="{ active: route.path === '/profile' }"
-    >
+    <RouterLink to="/profile" class="menu-item" :class="{ active: route.path === '/profile' }">
       <div class="icon profile" />
       <span>Mon compte</span>
     </RouterLink>
@@ -33,8 +21,9 @@ const route = useRoute()
 </script>
 <style scoped>
 .menu {
+  z-index: 2;
   position: fixed;
-  bottom: 16px;
+  bottom: 0;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -42,9 +31,9 @@ const route = useRoute()
   justify-content: space-around;
   gap: 8px;
   background-color: var(--color-black);
-  border-radius: 28px;
+  border-radius: 75px 75px 0px 0px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  width: calc(100% - 32px);
+  width: 100%;
   max-width: 400px;
   padding: 14px 12px;
 }

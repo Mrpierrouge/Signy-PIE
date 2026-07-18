@@ -67,7 +67,7 @@ defineEmits<{
 </script>
 <style scoped>
 .lesson-card {
-  width: 100%;
+  width: 90%;
   padding: 20px;
   border-radius: 24px;
   cursor: pointer;
@@ -206,16 +206,8 @@ defineEmits<{
     }
 
     &.selected {
-      background-color: var(--color-black);
-      color: white;
-      .icon {
-        background-color: white;
-      }
       .extra {
         grid-template-rows: 1fr;
-        .extra-text {
-          color: white;
-        }
       }
     }
   }
