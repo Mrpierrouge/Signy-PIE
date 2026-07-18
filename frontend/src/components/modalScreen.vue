@@ -28,7 +28,8 @@ function close() {
   height: 782px;
   max-height: 100vh;
   background-color: white;
-  border-top: 1px solid black;
+  border: 1px solid black;
+  border-radius: 75px 75px 0px 0px;
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
   z-index: 200;
   display: flex;
