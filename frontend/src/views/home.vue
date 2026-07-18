@@ -7,13 +7,20 @@
         :lesson="lesson"
         :selected="selectedLesson === lesson.id"
         @click="selectLesson(lesson)"
+        @start="startLesson(lesson.id)"
       />
     </div>
   </div>
+
+  <ModalScreen v-model="showLessonModal">
+    <VideoBlock v-if="firstWordVideoSrc" :video-src="firstWordVideoSrc" />
+  </ModalScreen>
 </template>
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
 import LessonCard from "@/components/cards/lessonCard.vue"
+import ModalScreen from "@/components/modalScreen.vue"
+import VideoBlock from "@/components/videoBlock.vue"
 import { ApiClass } from "@/api/api"
 import type { Lesson, LessonWithWords } from "@/types/lesson"
 
@@ -43,6 +50,21 @@ const selectedLesson = ref<number | null>(null)
 function selectLesson(lesson: Lesson) {
   if (lesson.status === "locked") return
   selectedLesson.value = lesson.id
+}
+
+const showLessonModal = ref(false)
+const activeLesson = ref<LessonWithWords | null>(null)
+
+const firstWordVideoSrc = computed(() => {
+  const firstWord = activeLesson.value?.words[0]
+  return firstWord ? ApiClass.getVideoUrl(firstWord.video) : ""
+})
+
+function startLesson(lessonId: number) {
+  const lesson = fetchedLessons.value.find((lesson) => lesson.id === lessonId)
+  if (!lesson || lesson.words.length === 0) return
+  activeLesson.value = lesson
+  showLessonModal.value = true
 }
 
 async function fetchLessons() {
