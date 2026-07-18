@@ -46,7 +46,7 @@ class API {
   }
 
   async tryWord(video: FormData): Promise<{ word: string }> {
-    const response = await fetch(`${this.baseUrl}/recordings`, {
+    const response = await fetch(`${this.baseUrl}/ai/interrogate`, {
       method: "POST",
       body: video,
     })
