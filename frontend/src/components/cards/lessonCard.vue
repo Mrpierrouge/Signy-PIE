@@ -36,6 +36,13 @@
         :class="`icon_${lesson.status}`"
       />
     </div>
+
+    <div class="extra">
+      <div class="extra-inner">
+        <p class="extra-text">Découvrez les mots de cette leçon et entraînez-vous en LSF.</p>
+        <button class="start-button" @click.stop="$emit('start')">Commencer la leçon</button>
+      </div>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
@@ -58,97 +65,100 @@ withDefaults(
 defineEmits<{
   click: []
 }>()
+
+defineEmits<{
+  click: []
+  start: []
+}>()
 </script>
 <style scoped>
 .lesson-card {
-  width: 100%;
-  border-radius: 24px;
-  font-family: var(--font-family);
-}
-
-.label {
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-regular);
-}
-
-.headline {
-  font-size: var(--font-size-h2);
-  font-weight: var(--font-weight-bold);
-}
-
-.lesson-card.featured {
-  background-color: var(--color-darkpurple);
-  color: white;
+  background-color: var(--color-lightgray);
+  width: 90%;
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.lesson-card.featured .description {
-  margin: 0;
-  font-size: var(--font-size-body);
-  font-weight: var(--font-weight-regular);
-  line-height: 1.5;
-  opacity: 0.85;
-}
-.lesson-card.featured .cta {
-  margin-top: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background-color: var(--color-black);
-  color: white;
-  border: none;
-  border-radius: 16px;
-  padding: 14px;
-  font-family: var(--font-family);
-  font-size: var(--font-size-h3);
-  font-weight: var(--font-weight-bold);
+  border-radius: 20px;
   cursor: pointer;
-}
-.lesson-card.featured .play-icon {
-  width: 12px;
-  height: 14px;
-}
+  transition: background-color 0.35s ease;
 
-.lesson-card.compact {
-  padding: 18px 20px;
-  color: var(--color-black);
-  cursor: pointer;
-}
-.lesson-card.compact.color-0 {
-  background-color: var(--color-lightblue);
-}
-.lesson-card.compact.color-1 {
-  background-color: var(--color-lightpink);
-}
-.lesson-card.compact.color-2 {
-  background-color: var(--color-lightyellow);
-}
-.lesson-card.compact .compact-body {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 4px;
-}
-.lesson-card.compact .icon {
-  width: 22px;
-  height: 22px;
-  flex-shrink: 0;
-  mask-size: contain;
-  mask-repeat: no-repeat;
-  mask-position: center;
-  background-color: var(--color-black);
-}
-.lesson-card.compact .icon.icon_locked {
-  mask-image: url("@/assets/icons/lock.png");
-}
-.lesson-card.compact .icon.icon_unlocked {
-  mask-image: url("@/assets/icons/unlock.png");
-}
-.lesson-card.compact .icon.icon_completed {
-  mask-image: url("@/assets/icons/ok-hand.png");
+  .content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50px;
+    color: var(--color-black);
+    .texts {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      .title {
+        font-size: 18px;
+        font-weight: bold;
+      }
+      .subtitle {
+        font-size: 14px;
+        font-weight: normal;
+      }
+    }
+    .icon {
+      width: 24px;
+      height: 24px;
+      mask-size: cover;
+      background-color: var(--color-black);
+      &.icon_locked {
+        mask-image: url("@/assets/icons/lock.png");
+      }
+      &.icon_unlocked {
+        mask-image: url("@/assets/icons/unlock.png");
+      }
+      &.icon_completed {
+        mask-image: url("@/assets/icons/ok-hand.png");
+      }
+    }
+  }
+
+  .extra {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s ease;
+
+    .extra-inner {
+      overflow: hidden;
+    }
+
+    .extra-text {
+      margin: 0 0 15px;
+      font-size: 14px;
+      color: var(--color-black);
+    }
+
+    .start-button {
+      background-color: var(--color-darkpurple);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  }
+
+  &.selected {
+    background-color: var(--color-black);
+    .content {
+      color: white;
+      .icon {
+        background-color: white;
+      }
+    }
+    .extra {
+      grid-template-rows: 1fr;
+      .extra-text {
+        color: white;
+      }
+    }
+  }
 }
 </style>

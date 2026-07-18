@@ -1,0 +1,20 @@
+{
+  "classes": [
+    "France",
+    "bonjour",
+    "non",
+    "orange couleur",
+    "oui",
+    "prénom",
+    "sept",
+    "sirène",
+    "six",
+    "âge"
+  ],
+  "n_classes": 10,
+  "feature_dim": 444,
+  "target_frames": 30,
+  "d_model": 128,
+  "n_heads": 4,
+  "n_layers": 3
+}

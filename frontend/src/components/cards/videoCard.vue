@@ -23,9 +23,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, onBeforeUnmount } from "vue"
+import { ref, onBeforeUnmount, watch } from "vue"
 
-defineProps<{
+const props = defineProps<{
   videoSrc?: string
 }>()
 
@@ -48,6 +48,16 @@ function onSourceLoaded() {
     aspectRatio.value = `${sourceVideo.value.videoWidth} / ${sourceVideo.value.videoHeight}`
   }
 }
+
+// Changing the `src` attribute on an existing <video> element doesn't make the
+// browser pick up the new source on its own — it needs an explicit reload.
+watch(
+  () => props.videoSrc,
+  () => {
+    sourceVideo.value?.load()
+  },
+  { flush: "post" },
+)
 
 async function activateCamera() {
   try {

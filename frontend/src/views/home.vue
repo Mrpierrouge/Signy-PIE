@@ -22,38 +22,80 @@
 
     <div class="list">
       <LessonCard
-        v-for="(lesson, index) in lessons"
+        v-for="lesson in lessons"
         :key="lesson.id"
         :lesson="lesson"
-        :featured="index === 0"
-        :color-index="index - 1"
-        :description="introDescription"
-        @click="selectLesson(lesson.id)"
+        :selected="selectedLesson === lesson.id"
+        @click="selectLesson(lesson)"
+        @start="startLesson(lesson.id)"
       />
     </div>
   </div>
+
+  <ModalScreen v-model="showLessonModal">
+    <VideoBlock v-if="firstWordVideoSrc" :video-src="firstWordVideoSrc" />
+  </ModalScreen>
 </template>
 <script setup lang="ts">
+import { computed, onMounted, ref } from "vue"
 import LessonCard from "@/components/cards/lessonCard.vue"
-import { ref } from "vue"
-import type { Lesson } from "@/types/lesson"
+import ModalScreen from "@/components/modalScreen.vue"
+import VideoBlock from "@/components/videoBlock.vue"
+import { ApiClass } from "@/api/api"
+import type { Lesson, LessonWithWords } from "@/types/lesson"
 
-const points = ref(440)
-
-const introDescription =
-  "Découvrez les premiers signes essentiels pour débuter en LSF et apprendre à communiquer simplement."
-
-const lessons: Lesson[] = [
-  { id: 1, title: "Apprendre les bases", status: "unlocked" },
-  { id: 2, title: "Apprendre les bases", status: "locked" },
-  { id: 3, title: "Apprendre les bases", status: "locked" },
-  { id: 4, title: "Apprendre les bases", status: "locked" },
+// Placeholder lessons so the list doesn't look empty while only a couple of
+// real lessons exist in the backend. Negative ids keep them from ever
+// colliding with real lesson ids. Always locked since there's no content behind them.
+const placeholderLessons: Lesson[] = [
+  { id: -1, title: "Les salutations", status: "locked" },
+  { id: -2, title: "Les couleurs", status: "locked" },
+  { id: -3, title: "Les nombres", status: "locked" },
+  { id: -4, title: "La famille", status: "locked" },
 ]
 
+const fetchedLessons = ref<LessonWithWords[]>([])
+
+const lessons = computed<Lesson[]>(() => [
+  ...fetchedLessons.value.map((lesson) => ({
+    id: lesson.id,
+    title: lesson.title,
+    status: "unlocked" as const,
+  })),
+  ...placeholderLessons,
+])
+
 const selectedLesson = ref<number | null>(null)
-const selectLesson = (lessonId: number) => {
-  selectedLesson.value = lessonId
+
+function selectLesson(lesson: Lesson) {
+  if (lesson.status === "locked") return
+  selectedLesson.value = lesson.id
 }
+
+const showLessonModal = ref(false)
+const activeLesson = ref<LessonWithWords | null>(null)
+
+const firstWordVideoSrc = computed(() => {
+  const firstWord = activeLesson.value?.words[0]
+  return firstWord ? ApiClass.getVideoUrl(firstWord.video) : ""
+})
+
+function startLesson(lessonId: number) {
+  const lesson = fetchedLessons.value.find((lesson) => lesson.id === lessonId)
+  if (!lesson || lesson.words.length === 0) return
+  activeLesson.value = lesson
+  showLessonModal.value = true
+}
+
+async function fetchLessons() {
+  try {
+    fetchedLessons.value = await ApiClass.getLessons()
+  } catch (error) {
+    console.error("Error fetching lessons:", error)
+  }
+}
+
+onMounted(fetchLessons)
 </script>
 <style scoped>
 .home-container {
