@@ -16,21 +16,22 @@ import Menu from "./views/menu.vue"
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
+  background-color: var(--color-black);
 }
 .appLogo {
-  /* from 172 */
   width: 43px;
-  /* from 140 */
-  position: absolute;
-  top: 2vh;
   height: 35px;
+  margin-top: 2vh;
   mask-image: url("@/assets/icons/logo.png");
   mask-size: cover;
   background-color: var(--color-darkpurple);
 }
 .content {
-  margin-top: 70px;
+  margin-top: 24px;
+  margin-bottom: 110px;
   width: 100%;
+  max-width: 520px;
   display: flex;
   flex-direction: column;
   align-items: center;

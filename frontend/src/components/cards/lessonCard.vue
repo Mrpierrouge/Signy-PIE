@@ -1,20 +1,40 @@
 <template>
   <div
-    class="card lesson-card"
-    :class="{
-      selected: selected,
-    }"
-    @click="$emit('click')"
+    class="lesson-card"
+    :class="featured ? 'featured' : `compact color-${colorIndex % 3}`"
+    @click="!featured && $emit('click')"
   >
-    <div class="content">
-      <div class="texts">
-        <div class="title">Lecon {{ lesson.id }}</div>
-        <div class="subtitle">
-          {{ lesson.title }}
-        </div>
-      </div>
+    <div class="label">
+      Leçon {{ lesson.id }}
+    </div>
 
-      <div class="icon" :class="`icon_${lesson.status}`"></div>
+    <div v-if="featured" class="featured-body">
+      <div class="headline">
+        {{ lesson.title }}
+      </div>
+      <p class="description">
+        {{ description }}
+      </p>
+      <button class="cta" @click="$emit('click')">
+        <svg
+          class="play-icon"
+          viewBox="0 0 12 14"
+          fill="currentColor"
+        >
+          <path d="M0 0 L12 7 L0 14 Z" />
+        </svg>
+        Commencer la leçon
+      </button>
+    </div>
+
+    <div v-else class="compact-body">
+      <div class="headline">
+        {{ lesson.title }}
+      </div>
+      <div
+        class="icon"
+        :class="`icon_${lesson.status}`"
+      />
     </div>
 
     <div class="extra">
@@ -28,9 +48,22 @@
 <script setup lang="ts">
 import type { Lesson } from "@/types/lesson"
 
-defineProps<{
-  selected: boolean
-  lesson: Lesson
+withDefaults(
+  defineProps<{
+    lesson: Lesson
+    featured?: boolean
+    colorIndex?: number
+    description?: string
+  }>(),
+  {
+    featured: false,
+    colorIndex: 0,
+    description: "",
+  },
+)
+
+defineEmits<{
+  click: []
 }>()
 
 defineEmits<{
