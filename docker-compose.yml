@@ -26,8 +26,8 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg2://signy:signy@db:5432/signy
       AI_MODEL_PATH: /app/lsf_model.onnx
-      # Comma-separated list — must match the order used during training
-      AI_LABELS: bonjour,merci,au_revoir,oui,non,salut,pardon,svp,aide,merci_bien
+      # Comma-separated list — must match the order used during training (see backend/model_meta.json)
+      AI_LABELS: "France,bonjour,non,orange couleur,oui,prénom,sept,sirène,six,âge"
     ports:
       - "8000:8000"
     depends_on:
