@@ -67,22 +67,23 @@ defineEmits<{
 </script>
 <style scoped>
 .lesson-card {
-  width: 90%;
+  width: 100%;
   padding: 20px;
-  border-radius: 20px;
+  border-radius: 24px;
   cursor: pointer;
+  font-family: var(--font-family);
   transition: background-color 0.35s ease;
 
   .label {
-    font-size: 12px;
-    font-weight: bold;
+    font-size: var(--font-size-body);
+    font-weight: var(--font-weight-bold);
     opacity: 0.6;
     margin-bottom: 6px;
   }
 
   .headline {
-    font-size: 18px;
-    font-weight: bold;
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-bold);
   }
 
   /* ── Featured (hero) card ──────────────────────────────────────────────── */
@@ -97,28 +98,31 @@ defineEmits<{
 
       .description {
         margin: 0;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.8);
+        font-size: var(--font-size-body);
+        font-weight: var(--font-weight-regular);
+        line-height: 1.5;
+        opacity: 0.85;
       }
 
       .cta {
-        align-self: flex-start;
         display: flex;
         align-items: center;
-        gap: 8px;
-        background-color: white;
-        color: var(--color-darkpurple);
+        justify-content: center;
+        gap: 10px;
+        background-color: var(--color-black);
+        color: white;
         border: none;
-        border-radius: 10px;
-        padding: 10px 20px;
-        font-size: 14px;
-        font-weight: bold;
+        border-radius: 16px;
+        padding: 14px;
+        font-family: var(--font-family);
+        font-size: var(--font-size-h3);
+        font-weight: var(--font-weight-bold);
         cursor: pointer;
-        margin-top: 5px;
+        margin-top: 6px;
 
         .play-icon {
-          width: 10px;
-          height: 12px;
+          width: 12px;
+          height: 14px;
         }
       }
     }
@@ -126,18 +130,16 @@ defineEmits<{
 
   /* ── Compact (list) card ───────────────────────────────────────────────── */
   &.compact {
-    background-color: var(--color-lightgray);
     color: var(--color-black);
-    border-left: 5px solid var(--accent-color);
 
     &.color-0 {
-      --accent-color: var(--color-lightblue);
+      background-color: var(--color-lightblue);
     }
     &.color-1 {
-      --accent-color: var(--color-pink);
+      background-color: var(--color-lightpink);
     }
     &.color-2 {
-      --accent-color: var(--color-lightyellow);
+      background-color: var(--color-lightyellow);
     }
 
     .compact-body {
@@ -151,9 +153,12 @@ defineEmits<{
       }
 
       .icon {
-        width: 24px;
-        height: 24px;
-        mask-size: cover;
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+        mask-size: contain;
+        mask-repeat: no-repeat;
+        mask-position: center;
         background-color: var(--color-black);
         &.icon_locked {
           mask-image: url("@/assets/icons/lock.png");
@@ -178,18 +183,24 @@ defineEmits<{
 
       .extra-text {
         margin: 0 0 15px;
-        font-size: 14px;
+        font-family: var(--font-family);
+        font-size: var(--font-size-body);
+        font-weight: var(--font-weight-regular);
         color: var(--color-black);
       }
 
       .start-button {
-        background-color: var(--color-darkpurple);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--color-black);
         color: white;
         border: none;
-        border-radius: 10px;
-        padding: 10px 20px;
-        font-size: 14px;
-        font-weight: bold;
+        border-radius: 16px;
+        padding: 14px;
+        font-family: var(--font-family);
+        font-size: var(--font-size-h3);
+        font-weight: var(--font-weight-bold);
         cursor: pointer;
       }
     }

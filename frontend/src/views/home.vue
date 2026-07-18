@@ -8,7 +8,7 @@
             d="M10 0 L12.6 6.9 L20 7.6 L14.4 12.4 L16.2 20 L10 15.9 L3.8 20 L5.6 12.4 L0 7.6 L7.4 6.9 Z"
           />
         </svg>
-        <span> points</span>
+        <span>{{ points }} points</span>
       </div>
     </div>
 
@@ -16,11 +16,14 @@
 
     <div class="list">
       <LessonCard
-        v-for="lesson in lessons"
+        v-for="(lesson, index) in lessons"
         :key="lesson.id"
         :lesson="lesson"
+        :featured="index === 0"
+        :color-index="index - 1"
+        :description="introDescription"
         :selected="selectedLesson === lesson.id"
-        @click="selectLesson(lesson)"
+        @click="index === 0 ? startLesson(lesson.id) : selectLesson(lesson)"
         @start="startLesson(lesson.id)"
       />
     </div>
@@ -37,6 +40,11 @@ import ModalScreen from "@/components/modalScreen.vue"
 import VideoBlock from "@/components/videoBlock.vue"
 import { ApiClass } from "@/api/api"
 import type { Lesson, LessonWithWords } from "@/types/lesson"
+
+const points = ref(440)
+
+const introDescription =
+  "Découvrez les premiers signes essentiels pour débuter en LSF et apprendre à communiquer simplement."
 
 // Placeholder lessons so the list doesn't look empty while only a couple of
 // real lessons exist in the backend. Negative ids keep them from ever
