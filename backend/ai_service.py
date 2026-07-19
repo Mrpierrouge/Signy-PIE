@@ -25,16 +25,16 @@ except ImportError:  # pragma: no cover
 
 
 DEFAULT_LABELS = [
+    "France",
     "bonjour",
-    "merci",
-    "au_revoir",
-    "oui",
     "non",
-    "salut",
-    "pardon",
-    "svp",
-    "aide",
-    "merci_bien",
+    "orange couleur",
+    "oui",
+    "prénom",
+    "sept",
+    "sirène",
+    "six",
+    "âge",
 ]
 
 # Magic bytes that identify a NumPy .npy file
