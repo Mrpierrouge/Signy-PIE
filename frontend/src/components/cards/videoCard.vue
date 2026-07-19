@@ -24,7 +24,7 @@
 </template>
 <script setup lang="ts">
 import { ref, onBeforeUnmount, watch } from "vue"
-import { detectFrame, FEATURE_SIZE, preloadHolisticExtractor } from "@/lib/holisticExtractor"
+import { detectFrame, FEATURE_SIZE, normalizeSequence, preloadHolisticExtractor } from "@/lib/holisticExtractor"
 import { encodeNpyFloat32 } from "@/lib/npy"
 
 const props = defineProps<{
@@ -119,14 +119,7 @@ function stopRecording() {
   const flattened = new Float32Array(frameCount * FEATURE_SIZE)
   capturedFrames.forEach((frame, i) => flattened.set(frame, i * FEATURE_SIZE))
 
-  // TEMP diagnostic: confirms whether MediaPipe is actually detecting a
-  // person (varying, non-zero keypoints) or silently zero-filling every
-  // frame (which would explain a constant prediction regardless of input).
-  const nonZeroCount = flattened.reduce((count, value) => count + (value !== 0 ? 1 : 0), 0)
-  console.log(
-    `[capture] ${frameCount} frames, ${nonZeroCount}/${flattened.length} non-zero feature values` +
-      ` (${((nonZeroCount / flattened.length) * 100).toFixed(1)}%)`,
-  )
+  normalizeSequence(flattened, frameCount)
 
   emit("recording-ready", encodeNpyFloat32(flattened, [frameCount, FEATURE_SIZE]))
 }
