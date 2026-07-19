@@ -1,263 +1,121 @@
-# Signy PIE 🤟
+# Signy PIE
 
-Application web pédagogique pour l'apprentissage de la **langue des signes française** (LSF), combinant une interface Vue 3 intuitive avec un backend FastAPI intelligent doté de capacités d'analyse vidéo par IA.
+Signy PIE est une application pédagogique pour apprendre la langue des signes française. Le projet est découpé en deux parties principales : un frontend Vue 3 / Vite pour l’interface utilisateur, et un backend FastAPI pour l’API, les données et la prédiction IA sur vidéo.
 
----
+## Vue d'ensemble
 
-## 📋 Table des matières
+L’application propose :
 
-- [Vue d'ensemble](#vue-densemble)
-- [Architecture](#architecture)
-- [Structure du projet](#structure-du-projet)
-- [Modèles de données](#modèles-de-données)
-- [Routes API Backend](#routes-api-backend)
-- [Routes Frontend](#routes-frontend)
-- [Fonctionnalités](#fonctionnalités)
-- [Stack technique](#stack-technique)
-- [Installation & Démarrage](#installation--démarrage)
-- [Flux de données](#flux-de-données)
+- des pages de leçons pour progresser étape par étape,
+- un lexique vidéo pour revoir les mots,
+- un profil utilisateur pour suivre l’avancement,
+- une route IA qui analyse une vidéo et renvoie une prédiction,
+- des vidéos pédagogiques servies par le backend.
 
----
+## Architecture
 
-## 📖 Vue d'ensemble
+- Frontend: [frontend/](frontend) - application Vue 3 + Vite.
+- Backend: [backend/](backend) - API FastAPI, base de données et modèle IA.
+- Base de données: SQLite en local si `DATABASE_URL` n’est pas défini, PostgreSQL via Docker Compose.
 
-Signy PIE est une application pédagogique qui propose :
+Le frontend appelle le backend sur `http://localhost:8000`.
 
-- **Pages de leçons** : Accès progressif à des leçons déverrouillables en LSF
-- **Lexique vidéo interactif** : Visualisation de mots et expressions avec vidéos de démonstration
-- **Analyse IA** : Prédiction de mots en LSF via analyse vidéo (modèle ONNX)
-- **Profil utilisateur** : Suivi de la progression personnelle
-- **Navigation intuitive** : Menu fixe en bas d'écran pour faciliter la navigation
+## Prérequis
 
----
+- Node.js 20.19 ou plus récent.
+- Python 3.12 ou plus récent.
+- Optionnel: Docker et Docker Compose.
 
-## 🏗️ Architecture
+## Lancer le projet avec Docker
 
-### Diagramme global
+Cette option démarre le backend et PostgreSQL. C’est le plus simple pour obtenir l’API fonctionnelle rapidement.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Frontend (Vue 3)                     │
-│  ┌──────────────┬──────────────┬──────────────┐             │
-│  │ Home Page    │ Lexique Page │ Profile Page │             │
-│  └──────────────┴──────────────┴──────────────┘             │
-│                          │                                  │
-│                    HTTP Requests                            │
-│                          ↓                                  │
-├─────────────────────────────────────────────────────────────┤
-│                   Backend (FastAPI)                         │
-│   ┌──────────────────────────────────────────┐              │
-│   │  Routes API:                             │              │
-│   │  • GET /lessons                          │              │
-│   │  • GET /lesson/{id}                      │              │
-│   │  • GET /words & /word/{id}               │              │
-│   │  • POST /ai/interrogate (vidéo → mots)   │              │
-│   └──────────────────────────────────────────┘              │
-│                          │                                  │
-│               SQLAlchemy ORM / SQL                          │
-│                          ↓                                  │
-├─────────────────────────────────────────────────────────────┤
-│            Database (PostgreSQL / SQLite)                   │
-│  ┌───────────────────────────────────────────┐              │
-│  │ • Videos (vidéos pédagogiques)            │              │
-│  │ • Words (vocabulaire)                     │              │
-│  │ • Lessons (leçons structurées)            │              │
-│  │ • Relationships (many-to-many)            │              │
-│  └───────────────────────────────────────────┘              │
-└─────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────┐
-│              Service IA (ai_service.py)                     │
-│  • Modèle: lsf_model.onnx                                   │
-│  • Entrée: blob vidéo                                       │
-│  • Sortie: prédiction de mot + confiance                    │
-└─────────────────────────────────────────────────────────────┘
+```sh
+docker compose up --build
 ```
 
-### Orchestration
+Services exposés :
 
-- **Docker Compose** : démarre automatiquement :
-  - Backend FastAPI sur port 8000
-  - PostgreSQL sur port 5432
-  - Frontend Vite (via npm scripts)
+- Backend FastAPI: `http://localhost:8000`
+- PostgreSQL: `localhost:5432`
 
----
+Le backend est configuré avec `DATABASE_URL=postgresql+psycopg2://signy:signy@db:5432/signy` dans [docker-compose.yml](docker-compose.yml).
 
-## 📁 Structure du projet
+## Lancer le backend en local
 
+Depuis la racine du dépôt :
+
+```sh
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+Comportement par défaut :
+
+- si `DATABASE_URL` est absent, le backend utilise SQLite en local,
+- au démarrage, les tables sont créées et les données de démonstration sont initialisées,
+- les vidéos sont servies depuis `/videos`.
+
+## Lancer le frontend en local
+
+Dans un autre terminal :
+
+```sh
+cd frontend
+npm install
+npm run dev
+```
+
+Le frontend démarre avec Vite et consomme l’API du backend sur `http://localhost:8000`.
+
+## Commandes utiles
+
+Frontend :
+
+- `npm run build` pour produire une version de production,
+- `npm run lint` pour vérifier le code,
+- `npm run format` pour formater le code.
+
+Backend :
+
+- `uvicorn main:app --reload --host 0.0.0.0 --port 8000` pour le mode développement,
+- `pip install -r requirements.txt` pour installer les dépendances Python.
+
+## API backend
+
+Principales routes exposées par FastAPI :
+
+- `GET /`
+- `GET /users`
+- `GET /users/{user_id}`
+- `GET /lessons`
+- `GET /lessons/{lesson_id}`
+- `GET /words`
+- `GET /words/{word_id}`
+- `GET /videos`
+- `GET /videos/{video_id}`
+- `POST /ai/interrogate`
+
+La route `POST /ai/interrogate` accepte une vidéo ou un fichier de type keypoints et renvoie la prédiction du mot en LSF.
+
+## Structure du projet
+
+```text
 Signy-PIE/
-├── docker-compose.yml          # Orchestration des services
-├── package.json                # Dépendances monorepo (workspaces)
-├── eslint.config.js            # Configuration ESLint partagée
-│
-├── backend/                    # 🐍 Backend FastAPI
-│   ├── main.py                 # Point d'entrée & routes API
-│   ├── models.py               # Modèles SQLAlchemy
-│   ├── schemas.py              # Schémas Pydantic (requêtes/réponses)
-│   ├── database.py             # Configuration SQLAlchemy & SessionLocal
-│   ├── ai_service.py           # Prédicteur vidéo (ONNX)
-│   ├── requirements.txt         # Dépendances Python
-│   ├── Dockerfile              # Image Docker
-│   └── lsf_model.onnx          # Modèle IA pré-entraîné
-│
-└── frontend/                   # 🎨 Frontend Vue 3 + Vite
-    ├── src/
-    │   ├── App.vue             # Composant racine
-    │   ├── main.ts             # Point d'entrée Vue
-    │   ├── router/
-    │   │   └── index.ts        # Configuration Vue Router
-    │   ├── views/              # Pages de l'application
-    │   │   ├── home.vue        # Liste des leçons
-    │   │   ├── lexique.vue     # Lexique vidéo
-    │   │   ├── profile.vue     # Profil utilisateur
-    │   │   └── menu.vue        # Menu de navigation
-    │   ├── components/         # Composants réutilisables
-    │   │   ├── cards/
-    │   │   │   ├── lessonCard.vue
-    │   │   │   └── videoCard.vue
-    │   │   └── videoBlock.vue
-    │   ├── types/              # Types TypeScript
-    │   │   └── lesson.ts
-    │   └── assets/
-    │       ├── consts.css      # Variables CSS partagées
-    │       ├── icons/          # Icônes SVG
-    │       └── videos/         # Vidéos de démonstration
-    ├── package.json
-    ├── vite.config.ts
-    ├── tsconfig.json
-    └── index.html
+├── docker-compose.yml
+├── package.json
+├── backend/
+└── frontend/
 ```
 
----
+## Notes techniques
 
-## 🗄️ Modèles de données
-
-### Schéma de base de données
-
-```
-┌──────────────┐
-│   Videos     │
-├──────────────┤
-│ id (PK)      │◄─────────────────┐
-│ url          │                  │ FK
-└──────────────┘                  │
-                                  │
-┌──────────────┐                  │
-│   Words      │                  │
-├──────────────┤                  │
-│ id (PK)      │                  │
-│ string       │──────────────────┘
-│ video_id(FK) │
-└──────────────┘
-      │
-      │ Many-to-Many (lesson_words)
-      ↓
-┌──────────────┐
-│   Lessons    │
-├──────────────┤
-│ id (PK)      │
-│ title        │
-└──────────────┘
-      ↑
-      │ Many-to-Many (user_lessons_done)
-      │
-┌──────────────┐
-│    Users     │
-├──────────────┤
-│ id (PK)      │
-│ nom          │
-│ prenom       │
-│ email (UK)   │
-│ password     │
-│ premium      │
-│ creation_date│
-└──────────────┘
-```
-
-### Détail des modèles
-
-#### Video
-```python
-class Video:
-    id: int                # Identifiant unique
-    url: str              # Chemin vers la vidéo (ex: /videos/bonjour.mp4)
-```
-
-#### Word
-```python
-class Word:
-    id: int               # Identifiant unique
-    string: str           # Vocabulaire en français
-    video_id: int         # Relation avec Video (one-to-one)
-    video: Video          # Objet Video associé
-    lessons: Lesson[]     # Leçons contenant ce mot (many-to-many)
-```
-
-#### Lesson
-```python
-class Lesson:
-    id: int               # Identifiant unique
-    title: str            # Titre de la leçon
-    words: Word[]         # Mots inclus dans cette leçon (many-to-many)
-    users_completed: User[] # Utilisateurs ayant complété cette leçon
-```
-
-#### User
-```python
-class User:
-    id: int                    # Identifiant unique
-    nom: str                   # Nom de famille
-    prenom: str                # Prénom
-    email: str                 # Email unique
-    password: str              # Mot de passe hashé
-    premium: bool              # Statut premium (True/False)
-    creation_date: datetime    # Date de création du compte
-    lessons_done: Lesson[]     # Leçons complétées par cet utilisateur (many-to-many)
-```
-
-### Schémas Pydantic (API)
-
-#### Schémas de liste
-```json
-UserListItem:
-  - id: int
-  - nom: string
-  - prenom: string
-  - email: string
-  - premium: boolean
-  - creation_date: datetime
-  - lessons_done: LessonListItem[]
-
-LessonListItem:
-  - id: int
-  - title: string
-
-WordListItem:
-  - id: int
-  - string: string
-  - video: string (URL)
-```
-
-#### Schémas détaillés
-```json
-UserDetail:
-  - id: int
-  - nom: string
-  - prenom: string
-  - email: string
-  - premium: boolean
-  - creation_date: datetime
-  - lessons_done: LessonListItem[]
-
-LessonDetail:
-  - id: int
-  - title: string
-  - words: WordDetail[]
-
-WordDetail:
-  - id: int
-  - string: string
+- Le backend utilise SQLAlchemy et Pydantic.
+- Le modèle IA chargé par défaut est `backend/lsf_model.onnx`.
+- Les labels IA peuvent être ajustés via `AI_LABELS` dans l’environnement Docker.
   - video: string (URL)
 ```
 
