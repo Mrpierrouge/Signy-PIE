@@ -36,7 +36,7 @@ const videoCardRef = ref<InstanceType<typeof VideoCard> | null>(null)
 
 async function onRecordingReady(blob: Blob) {
   const formData = new FormData()
-  formData.append("video", blob, "recording.webm")
+  formData.append("video", blob, "recording.npy")
   const result = await ApiClass.tryWord(formData)
   console.log("Result from tryWord:", result)
 }
