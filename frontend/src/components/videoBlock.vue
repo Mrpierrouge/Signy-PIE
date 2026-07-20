@@ -1,5 +1,6 @@
 <template>
   <div class="video-block">
+    <h2 class="word-title">{{ word.string }}</h2>
     <videoCard ref="videoCardRef" :video-src="videoSrc" @recording-ready="onRecordingReady" />
     <button
       class="play-button"
@@ -30,6 +31,10 @@ import { ApiClass } from "@/api/api.ts"
 
 defineProps<{
   videoSrc: string
+  word: {
+    string: string
+    video: string
+  }
 }>()
 
 const videoCardRef = ref<InstanceType<typeof VideoCard> | null>(null)
@@ -62,6 +67,11 @@ async function onRecordingReady(blob: Blob) {
     &.stop-button {
       background-color: #d43d3d;
     }
+  }
+  .word-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--color-black);
   }
 }
 </style>
