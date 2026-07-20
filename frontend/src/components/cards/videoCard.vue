@@ -15,6 +15,8 @@
       :src="videoSrc"
       controls
       playsinline
+      autoplay
+      loop
       @loadedmetadata="onSourceLoaded"
     />
 
@@ -126,7 +128,14 @@ function stopRecording() {
 
 onBeforeUnmount(stopCamera)
 
-defineExpose({ activateCamera, stopCamera, startRecording, stopRecording, cameraActive, isRecording })
+defineExpose({
+  activateCamera,
+  stopCamera,
+  startRecording,
+  stopRecording,
+  cameraActive,
+  isRecording,
+})
 </script>
 <style scoped>
 .video-card {
