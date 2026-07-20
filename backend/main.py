@@ -76,17 +76,12 @@ def seed_database(db: Session) -> None:
         i: Video(id=i, url=url)
         for i, url in enumerate(
             [
-                "/videos/bonjour.mp4",
-                "/videos/france.mp4",
-                "/videos/orange_couleur.mp4",
-                "/videos/oui.mp4",
-                "/videos/non.mp4",
                 "/videos/age.mp4",
-                "/videos/six.mp4",
-                "/videos/sept.mp4",
-                "/videos/prenom.mp4",
-                "/videos/sirene.mp4",
-            ],
+                "/videos/bonjour.mp4",
+                "/videos/coiffeur.mp4",
+                "/videos/habiter.mp4",
+                "/videos/non.mp4",
+                "/videos/prenom.mp4",            ],
             start=1,
         )
     }
@@ -96,16 +91,12 @@ def seed_database(db: Session) -> None:
         i: Word(id=i, string=s, video=videos[i])
         for i, s in enumerate(
             [
-                "Bonjour",
-                "France",
-                "Orange (couleur)",
-                "Oui",
-                "Non",
                 "Âge",
-                "Six",
-                "Sept",
+                "Bonjour",
+                "Coiffeur",
+                "Habiter",
+                "Non",
                 "Prénom",
-                "Sirene",
             ],
             start=1,
         )
@@ -113,8 +104,8 @@ def seed_database(db: Session) -> None:
     db.add_all(words.values())
 
     lessons = {
-        1: Lesson(id=1, title="Les bases", words=[words[1], words[2]]),
-        2: Lesson(id=2, title="Les expressions utiles", words=[words[3], words[4]]),
+        1: Lesson(id=1, title="Les bases", words=[words[3], words[5]]),
+        2: Lesson(id=2, title="Les expressions utiles", words=[words[2], words[4]]),
     }
     db.add_all(lessons.values())
 

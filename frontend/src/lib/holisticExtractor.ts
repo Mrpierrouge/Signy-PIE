@@ -7,7 +7,7 @@ import type { NormalizedLandmark } from "@mediapipe/tasks-vision"
 // - No visibility for pose (training used [x, y, z] only for all landmarks)
 // - Face uses exact 73 landmark indices from training (lips, eyebrows, eyes, nose, contour)
 // - Coordinates are shoulder-normalized per frame (see normalizeSequence)
-// - Handedness follows camera perspective: left_hand = left side of image
+// - left_hand slot = person's RIGHT hand (training HandLandmarker "Left" = camera left = person's right)
 
 const HAND_LANDMARK_COUNT = 21
 const POSE_LANDMARK_COUNT = 33
@@ -131,10 +131,13 @@ export async function detectFrame(
   let offset = 0
 
   // Order: left_hand | right_hand | pose | face  (matches training script)
-  // HolisticLandmarker leftHandLandmarks = hand on left side of image (camera perspective)
-  // which matches training HandLandmarker handedness "Left" (camera perspective)
-  offset = writeLandmarks(features, offset, result.leftHandLandmarks[0], HAND_LANDMARK_COUNT)
+  //
+  // Convention mismatch between HolisticLandmarker and HandLandmarker:
+  //   Training HandLandmarker: "Left" = camera's left side = person's RIGHT hand
+  //   HolisticLandmarker: leftHandLandmarks = person's anatomically LEFT hand
+  // → swap: put rightHandLandmarks in the "left_hand" slot used during training.
   offset = writeLandmarks(features, offset, result.rightHandLandmarks[0], HAND_LANDMARK_COUNT)
+  offset = writeLandmarks(features, offset, result.leftHandLandmarks[0], HAND_LANDMARK_COUNT)
   offset = writeLandmarks(features, offset, result.poseLandmarks[0], POSE_LANDMARK_COUNT)
 
   const faceLandmarks = result.faceLandmarks[0]

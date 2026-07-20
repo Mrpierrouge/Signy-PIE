@@ -27,22 +27,30 @@ except ImportError:  # pragma: no cover
 
 
 DEFAULT_LABELS = [
-    "France",
+    "age",
     "bonjour",
+    "coiffeur",
+    "habiter",
     "non",
-    "orange couleur",
-    "oui",
-    "prénom",
-    "sept",
-    "sirène",
-    "six",
-    "âge",
+    "prenom",
 ]
 
 LOGGER = logging.getLogger(__name__)
 
 # Magic bytes that identify a NumPy .npy file
 _NPY_MAGIC = b"\x93NUMPY"
+
+
+def _resample(sequence: np.ndarray, target: int) -> np.ndarray:
+    """Linear interpolation to exactly `target` frames — matches training's _resample()."""
+    T = len(sequence)
+    if T == target:
+        return sequence
+    idx = np.linspace(0, T - 1, target)
+    left = np.floor(idx).astype(int)
+    right = np.clip(left + 1, 0, T - 1)
+    alpha = (idx - left)[:, None]
+    return ((1 - alpha) * sequence[left] + alpha * sequence[right]).astype(np.float32)
 
 
 def _softmax(values: np.ndarray) -> np.ndarray:
@@ -132,7 +140,7 @@ class VideoWordPredictor:
         Convert incoming bytes into a float32 tensor of shape [1, T, F].
 
         Priority:
-          1. NumPy .npy keypoint array  → reshape / pad to [1, T, F]
+          1. NumPy .npy keypoint array  → resample to [1, T, F] via linear interpolation
           2. Raw bytes (video blob)     → treated as flat float data (fallback)
         """
         seq_len, feat_size = self._expected_shape()
@@ -142,12 +150,9 @@ class VideoWordPredictor:
         if npy_array is not None:
             # Expected shape from training: (T, F)  or  (1, T, F)
             arr = npy_array.astype(np.float32).reshape(-1, feat_size)
-            if arr.shape[0] < seq_len:
-                # Pad along the time axis with zeros
-                pad = np.zeros((seq_len - arr.shape[0], feat_size), dtype=np.float32)
-                arr = np.vstack([arr, pad])
-            # Truncate to exactly seq_len frames and add batch dim
-            return arr[:seq_len].reshape(1, seq_len, feat_size)
+            # Linear interpolation to exactly seq_len frames — matches _resample() in training
+            arr = _resample(arr, seq_len)
+            return arr.reshape(1, seq_len, feat_size)
 
         # Fallback: treat raw bytes as flat uint8 normalised to [0, 1]
         features = np.frombuffer(payload, dtype=np.uint8).astype(np.float32) / 255.0
