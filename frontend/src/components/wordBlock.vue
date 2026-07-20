@@ -30,7 +30,7 @@ const videoSrc = computed(() => ApiClass.getVideoUrl(props.word.video))
   .word-title {
     font-size: 18px;
     font-weight: bold;
-    color: var(--color-black);
+    color: var(--color-white);
   }
 }
 </style>
