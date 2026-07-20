@@ -96,7 +96,7 @@ function handleSubmit() {
     label {
       font-size: 14px;
       font-weight: bold;
-      color: var(--color-black);
+      color: var(--color-white);
     }
 
     input {
