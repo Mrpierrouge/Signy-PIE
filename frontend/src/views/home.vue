@@ -28,7 +28,7 @@
   </div>
 
   <ModalScreen v-model="showLessonModal">
-    <VideoBlock v-if="firstWordVideoSrc" :video-src="firstWordVideoSrc" />
+    <VideoBlock v-if="firstWord" :video-src="firstWordVideoSrc" :word="firstWord" />
   </ModalScreen>
 </template>
 <script setup lang="ts">
@@ -72,6 +72,9 @@ function selectLesson(lesson: Lesson) {
 const showLessonModal = ref(false)
 const activeLesson = ref<LessonWithWords | null>(null)
 
+const firstWord = computed(() => {
+  return activeLesson.value?.words[0] || null
+})
 const firstWordVideoSrc = computed(() => {
   const firstWord = activeLesson.value?.words[0]
   return firstWord ? ApiClass.getVideoUrl(firstWord.video) : ""

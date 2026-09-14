@@ -15,6 +15,8 @@
       :src="videoSrc"
       controls
       playsinline
+      autoplay
+      loop
       @loadedmetadata="onSourceLoaded"
     />
 
@@ -24,6 +26,8 @@
 </template>
 <script setup lang="ts">
 import { ref, onBeforeUnmount, watch } from "vue"
+import { detectFrame, FEATURE_SIZE, normalizeSequence, preloadHolisticExtractor } from "@/lib/holisticExtractor"
+import { encodeNpyFloat32 } from "@/lib/npy"
 
 const props = defineProps<{
   videoSrc?: string
@@ -40,8 +44,13 @@ const isRecording = ref(false)
 const errorMessage = ref("")
 const aspectRatio = ref("1 / 1")
 let stream: MediaStream | null = null
-let mediaRecorder: MediaRecorder | null = null
-let recordedChunks: Blob[] = []
+
+// Frames are captured at ~15fps by extracting MediaPipe Holistic keypoints
+// live off the camera feed, instead of encoding a video file — the backend
+// AI model expects a keypoint sequence, not raw video.
+const CAPTURE_INTERVAL_MS = 1000 / 15
+let capturedFrames: Float32Array[] = []
+let captureTimer: ReturnType<typeof setTimeout> | null = null
 
 function onSourceLoaded() {
   if (sourceVideo.value) {
@@ -67,6 +76,9 @@ async function activateCamera() {
     }
     cameraActive.value = true
     errorMessage.value = ""
+    // Warm up the landmarker now so the first recording isn't stalled
+    // waiting for the WASM runtime + model to load.
+    preloadHolisticExtractor()
   } catch {
     errorMessage.value = "Accès à la caméra refusé"
   }
@@ -79,33 +91,51 @@ function stopCamera() {
   cameraActive.value = false
 }
 
+async function captureTick() {
+  if (!isRecording.value || !cameraVideo.value) return
+  const features = await detectFrame(cameraVideo.value, performance.now())
+  capturedFrames.push(features)
+  if (isRecording.value) {
+    captureTimer = setTimeout(captureTick, CAPTURE_INTERVAL_MS)
+  }
+}
+
 function startRecording() {
   if (!stream || isRecording.value) return
-
-  recordedChunks = []
-  mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" })
-  mediaRecorder.ondataavailable = (event) => {
-    if (event.data.size > 0) {
-      recordedChunks.push(event.data)
-    }
-  }
-  mediaRecorder.onstop = () => {
-    const blob = new Blob(recordedChunks, { type: "video/webm" })
-    emit("recording-ready", blob)
-  }
-  mediaRecorder.start()
+  capturedFrames = []
   isRecording.value = true
+  captureTick()
 }
 
 function stopRecording() {
   if (!isRecording.value) return
-  mediaRecorder?.stop()
   isRecording.value = false
+  if (captureTimer) {
+    clearTimeout(captureTimer)
+    captureTimer = null
+  }
+
+  const frameCount = capturedFrames.length
+  if (frameCount === 0) return
+
+  const flattened = new Float32Array(frameCount * FEATURE_SIZE)
+  capturedFrames.forEach((frame, i) => flattened.set(frame, i * FEATURE_SIZE))
+
+  normalizeSequence(flattened, frameCount)
+
+  emit("recording-ready", encodeNpyFloat32(flattened, [frameCount, FEATURE_SIZE]))
 }
 
 onBeforeUnmount(stopCamera)
 
-defineExpose({ activateCamera, stopCamera, startRecording, stopRecording, cameraActive, isRecording })
+defineExpose({
+  activateCamera,
+  stopCamera,
+  startRecording,
+  stopRecording,
+  cameraActive,
+  isRecording,
+})
 </script>
 <style scoped>
 .video-card {

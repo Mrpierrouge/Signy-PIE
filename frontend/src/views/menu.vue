@@ -43,6 +43,7 @@ const route = useRoute()
   flex-direction: column;
   align-items: center;
   gap: 6px;
+  width: 60px;
   color: rgba(255, 255, 255, 0.4);
   text-decoration: none;
   font-family: var(--font-family);

@@ -45,7 +45,7 @@ class API {
     return `backend${video}`
   }
 
-  async tryWord(video: FormData): Promise<{ word: string }> {
+  async tryWord(video: FormData): Promise<{ word: string; confidence: number | null }> {
     const response = await fetch(`${this.baseUrl}/ai/interrogate`, {
       method: "POST",
       body: video,
