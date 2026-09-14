@@ -1,5 +1,10 @@
 <template>
   <div>Lexique</div>
+  <div class="search">
+    <input type="text" placeholder="Rechercher un mot..." v-model="searchQuery" />
+  </div>
+  <div class="test">{{ searchQuery }}</div>
+
   <div class="word-list">
     <div v-for="group in groupedWords" :key="group.letter" class="letter-section">
       <div class="letter-banner">{{ group.letter }}</div>
@@ -14,7 +19,7 @@ import { ApiClass } from "@/api/api"
 import type { Word } from "@/types/word"
 
 const words = ref<Word[]>([])
-
+const searchQuery = ref("")
 const DIACRITICS_PATTERN = /\p{Diacritic}/gu
 
 function firstLetterOf(str: string): string {
@@ -22,10 +27,13 @@ function firstLetterOf(str: string): string {
 }
 
 const groupedWords = computed(() => {
-  const sorted = [...words.value].sort((a, b) =>
+  let sorted = [...words.value].sort((a, b) =>
     a.string.localeCompare(b.string, "fr", { sensitivity: "base" }),
   )
-
+  if (searchQuery.value.trim() !== "") {
+    const query = searchQuery.value.toLowerCase()
+    sorted = sorted.filter((word) => word.string.toLowerCase().includes(query))
+  }
   const groups: { letter: string; words: Word[] }[] = []
   for (const word of sorted) {
     const letter = firstLetterOf(word.string)
