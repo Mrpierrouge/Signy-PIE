@@ -18,7 +18,7 @@ const videoSrc = computed(() => ApiClass.getVideoUrl(props.word.video))
 </script>
 <style scoped>
 .word-block {
-  width: 90%;
+  width: 85%;
   display: flex;
   flex-direction: column;
   align-items: center;
