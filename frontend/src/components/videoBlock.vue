@@ -25,11 +25,28 @@
 
     <div v-if="isChecking" class="ai-result checking">Analyse en cours...</div>
     <div v-else-if="aiError" class="ai-result error">{{ aiError }}</div>
-    <div v-else-if="aiResult" class="ai-result">
-      L'IA a reconnu : <strong>{{ aiResult.word }}</strong>
-      <span v-if="aiResult.confidence !== null">
-        ({{ (aiResult.confidence * 100).toFixed(0) }}%)
-      </span>
+    <div
+      v-else-if="aiResult"
+      class="ai-result"
+      :class="{ success: aiResult.is_valid, invalid: !aiResult.is_valid }"
+    >
+      <div class="status-badge">
+        <span v-if="aiResult.is_valid">✓ Signe validé pour « {{ word.string }} » !</span>
+        <span v-else>✗ Mauvais signe</span>
+      </div>
+
+      <div class="result-details">
+        <p v-if="aiResult.message" class="result-message">{{ aiResult.message }}</p>
+
+        <div v-if="aiResult.matched_words && aiResult.matched_words.length > 1" class="multi-words-info">
+          <span>Signe commun ({{ aiResult.label || aiResult.true_label }}) :</span>
+          <strong>{{ aiResult.matched_words.join(", ") }}</strong>
+        </div>
+
+        <span v-if="aiResult.confidence !== null" class="confidence">
+          Confiance IA : {{ (aiResult.confidence * 100).toFixed(0) }}%
+        </span>
+      </div>
     </div>
   </div>
 </template>
@@ -37,10 +54,12 @@
 import { ref } from "vue"
 import VideoCard from "./cards/videoCard.vue"
 import { ApiClass } from "@/api/api.ts"
+import type { AIWordResponse } from "@/types/word"
 
-defineProps<{
+const props = defineProps<{
   videoSrc: string
   word: {
+    id?: number
     string: string
     video: string
   }
@@ -48,7 +67,7 @@ defineProps<{
 
 const videoCardRef = ref<InstanceType<typeof VideoCard> | null>(null)
 const isChecking = ref(false)
-const aiResult = ref<{ word: string; confidence: number | null } | null>(null)
+const aiResult = ref<AIWordResponse | null>(null)
 const aiError = ref("")
 
 async function onRecordingReady(blob: Blob) {
@@ -59,7 +78,7 @@ async function onRecordingReady(blob: Blob) {
   aiError.value = ""
   isChecking.value = true
   try {
-    aiResult.value = await ApiClass.tryWord(formData)
+    aiResult.value = await ApiClass.tryWord(formData, props.word.string, props.word.id)
   } catch {
     aiError.value = "Impossible d'analyser l'enregistrement"
   } finally {
@@ -98,10 +117,15 @@ async function onRecordingReady(blob: Blob) {
   .ai-result {
     background-color: var(--color-lightgray);
     color: var(--color-black);
-    border-radius: 10px;
-    padding: 10px 16px;
+    border-radius: 12px;
+    padding: 12px 18px;
     font-size: 14px;
     text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 
     &.checking {
       font-style: italic;
@@ -111,6 +135,57 @@ async function onRecordingReady(blob: Blob) {
     &.error {
       background-color: #d43d3d;
       color: white;
+    }
+
+    &.success {
+      background-color: #e8f5e9;
+      border: 2px solid #4caf50;
+      color: #1b5e20;
+
+      .status-badge {
+        font-weight: bold;
+        font-size: 16px;
+        color: #2e7d32;
+      }
+    }
+
+    &.invalid {
+      background-color: #ffebee;
+      border: 2px solid #ef5350;
+      color: #c62828;
+
+      .status-badge {
+        font-weight: bold;
+        font-size: 16px;
+        color: #c62828;
+      }
+    }
+
+    .result-details {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .result-message {
+      margin: 0;
+      line-height: 1.4;
+    }
+
+    .multi-words-info {
+      background-color: rgba(0, 0, 0, 0.05);
+      padding: 6px 10px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .confidence {
+      font-size: 12px;
+      opacity: 0.8;
     }
   }
 }

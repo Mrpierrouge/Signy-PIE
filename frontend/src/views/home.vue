@@ -28,7 +28,33 @@
   </div>
 
   <ModalScreen v-model="showLessonModal">
-    <VideoBlock v-if="firstWord" :video-src="firstWordVideoSrc" :word="firstWord" />
+    <div v-if="currentWord" class="lesson-modal-content">
+      <div v-if="activeLesson && activeLesson.words.length > 1" class="lesson-stepper">
+        <button
+          class="step-btn"
+          :disabled="currentWordIndex === 0"
+          @click="currentWordIndex--"
+        >
+          ← Précédent
+        </button>
+        <span class="step-indicator">
+          Mot {{ currentWordIndex + 1 }} / {{ activeLesson.words.length }} : <strong>{{ currentWord.string }}</strong>
+        </span>
+        <button
+          class="step-btn"
+          :disabled="currentWordIndex >= activeLesson.words.length - 1"
+          @click="currentWordIndex++"
+        >
+          Suivant →
+        </button>
+      </div>
+
+      <VideoBlock
+        :key="currentWord.id"
+        :video-src="currentWordVideoSrc"
+        :word="currentWord"
+      />
+    </div>
   </ModalScreen>
 </template>
 <script setup lang="ts">
@@ -45,7 +71,6 @@ const points = ref(440)
 // real lessons exist in the backend. Negative ids keep them from ever
 // colliding with real lesson ids. Always locked since there's no content behind them.
 const placeholderLessons: Lesson[] = [
-  { id: -1, title: "Les salutations", status: "locked" },
   { id: -2, title: "Les couleurs", status: "locked" },
   { id: -3, title: "Les nombres", status: "locked" },
   { id: -4, title: "La famille", status: "locked" },
@@ -71,19 +96,22 @@ function selectLesson(lesson: Lesson) {
 
 const showLessonModal = ref(false)
 const activeLesson = ref<LessonWithWords | null>(null)
+const currentWordIndex = ref(0)
 
-const firstWord = computed(() => {
-  return activeLesson.value?.words[0] || null
+const currentWord = computed(() => {
+  if (!activeLesson.value || activeLesson.value.words.length === 0) return null
+  return activeLesson.value.words[currentWordIndex.value] || null
 })
-const firstWordVideoSrc = computed(() => {
-  const firstWord = activeLesson.value?.words[0]
-  return firstWord ? ApiClass.getVideoUrl(firstWord.video) : ""
+
+const currentWordVideoSrc = computed(() => {
+  return currentWord.value ? ApiClass.getVideoUrl(currentWord.value.video) : ""
 })
 
 function startLesson(lessonId: number) {
   const lesson = fetchedLessons.value.find((lesson) => lesson.id === lessonId)
   if (!lesson || lesson.words.length === 0) return
   activeLesson.value = lesson
+  currentWordIndex.value = 0
   showLessonModal.value = true
 }
 
@@ -139,5 +167,46 @@ onMounted(fetchLessons)
   justify-content: center;
   gap: 16px;
   width: 100%;
+}
+
+.lesson-modal-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.lesson-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 90%;
+  gap: 10px;
+  padding: 8px 12px;
+  background-color: var(--color-lightgray);
+  border-radius: 12px;
+}
+
+.step-btn {
+  background-color: var(--color-darkpurple);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.step-indicator {
+  font-size: 14px;
+  color: var(--color-black);
 }
 </style>

@@ -1,2 +1,5 @@
 node_modules/
 backend/__pycache__
+*.db
+*.sqlite3
+.venv/

@@ -1,5 +1,5 @@
 import type { Lesson, LessonWithWords } from "@/types/lesson"
-import type { Word } from "@/types/word"
+import type { AIWordResponse, Word, WordCorespondance } from "@/types/word"
 
 class API {
   readonly baseUrl: string
@@ -40,12 +40,31 @@ class API {
     return response.json()
   }
 
+  async getWordCorespondances(): Promise<WordCorespondance[]> {
+    const response = await fetch(`${this.baseUrl}/word-corespondance`)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch word correspondances: ${response.statusText}`)
+    }
+    return response.json()
+  }
+
   // TODO: revert to `${this.baseUrl}${video}` once video files are served through the API
   getVideoUrl(video: string): string {
     return `backend${video}`
   }
 
-  async tryWord(video: FormData): Promise<{ word: string; confidence: number | null }> {
+  async tryWord(
+    video: FormData,
+    expectedWord?: string,
+    expectedWordId?: number,
+  ): Promise<AIWordResponse> {
+    if (expectedWord && !video.has("expected_word")) {
+      video.append("expected_word", expectedWord)
+    }
+    if (expectedWordId !== undefined && !video.has("expected_word_id")) {
+      video.append("expected_word_id", expectedWordId.toString())
+    }
+
     const response = await fetch(`${this.baseUrl}/ai/interrogate`, {
       method: "POST",
       body: video,
