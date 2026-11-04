@@ -1,4 +1,5 @@
 import unicodedata
+from pathlib import Path
 from typing import Dict, List, Optional
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Query, UploadFile
@@ -8,7 +9,16 @@ from sqlalchemy.orm import Session
 
 from ai_service import VideoWordPredictor
 from database import Base, SessionLocal, engine
-from models import Lesson, User, Video, Word, WordCorespondance
+from models import (
+    Lesson,
+    User,
+    Video,
+    Word,
+    WordCorespondance,
+    lesson_words,
+    user_lessons_done,
+    word_corespondance_words,
+)
 from schemas import (
     AIWordResponse,
     LessonDetail,
@@ -96,7 +106,7 @@ def find_corespondance_by_label(db: Session, label: str) -> Optional[WordCorespo
         if norm in parts:
             return item
 
-    # 3. Check if label matches any word string in db whose id is in item.words
+    # 3. Check if label matches any word string in db associated with this item
     for item in all_items:
         words = item.get_words(db)
         for w in words:
@@ -117,14 +127,38 @@ def get_db():
 
 # ── Seed data ─────────────────────────────────────────────────────────────────
 
-def seed_database(db: Session) -> None:
-    if db.query(Video).first() is not None:
+def seed_database(db: Session, force: bool = False) -> None:
+    age_corresp = db.query(WordCorespondance).filter(WordCorespondance.label == "age").first()
+    bj_corresp = db.query(WordCorespondance).filter(WordCorespondance.label == "bonjour/merci").first()
+    word_1 = db.query(Word).filter(Word.id == 1).first()
+    has_all_corresp = db.query(WordCorespondance).count() >= 6
+    is_aligned = (
+        age_corresp is not None
+        and 1 in (age_corresp.words or [])
+        and bj_corresp is not None
+        and word_1 is not None
+        and normalize_label(word_1.string) == "age"
+        and has_all_corresp
+    )
+
+    if not force and is_aligned:
         return
 
-    # 1. Videos
+    # Clear previous seed data to ensure key alignment across all tables
+    db.query(user_lessons_done).delete()
+    db.query(lesson_words).delete()
+    db.query(word_corespondance_words).delete()
+    db.query(WordCorespondance).delete()
+    db.query(Lesson).delete()
+    db.query(Word).delete()
+    db.query(Video).delete()
+    db.query(User).delete()
+    db.commit()
+
+    # 1. Videos (aligned with model_meta.json classes 0..5)
     videos = {
-        1: Video(id=1, url="/videos/bonjour.mp4"),
-        2: Video(id=2, url="/videos/age.mp4"),
+        1: Video(id=1, url="/videos/age.mp4"),
+        2: Video(id=2, url="/videos/bonjour.mp4"),
         3: Video(id=3, url="/videos/coiffeur.mp4"),
         4: Video(id=4, url="/videos/habiter.mp4"),
         5: Video(id=5, url="/videos/non.mp4"),
@@ -132,35 +166,35 @@ def seed_database(db: Session) -> None:
     }
     db.add_all(videos.values())
 
-    # 2. Words (Note: Bonjour and Merci share the same sign and video url as shown in the whiteboard schema!)
+    # 2. Words (IDs 1..6 match video IDs 1..6 and model classes; ID 7 is Merci sharing Video 2 with Bonjour)
     words = {
-        1: Word(id=1, string="Bonjour", video=videos[1]),
-        2: Word(id=2, string="Merci", video=videos[1]),
-        3: Word(id=3, string="Âge", video=videos[2]),
-        4: Word(id=4, string="Coiffeur", video=videos[3]),
-        5: Word(id=5, string="Habiter", video=videos[4]),
-        6: Word(id=6, string="Non", video=videos[5]),
-        7: Word(id=7, string="Prénom", video=videos[6]),
+        1: Word(id=1, string="Âge", video=videos[1]),
+        2: Word(id=2, string="Bonjour", video=videos[2]),
+        3: Word(id=3, string="Coiffeur", video=videos[3]),
+        4: Word(id=4, string="Habiter", video=videos[4]),
+        5: Word(id=5, string="Non", video=videos[5]),
+        6: Word(id=6, string="Prénom", video=videos[6]),
+        7: Word(id=7, string="Merci", video=videos[2]),
     }
     db.add_all(words.values())
 
     # 3. Word Correspondance table (word_corespondance)
-    # Column order: id, label, words (list of IDs) + relational link via word_items
+    # IDs 1..6 match Videos 1..6, Words 1..6, and model classes; Bonjour maps to words [2, 7]
     corespondances = [
-        WordCorespondance(id=1, label="bj/mrc", words=[1, 2], word_items=[words[1], words[2]]),
-        WordCorespondance(id=2, label="age", words=[3], word_items=[words[3]]),
-        WordCorespondance(id=3, label="coiffeur", words=[4], word_items=[words[4]]),
-        WordCorespondance(id=4, label="habiter", words=[5], word_items=[words[5]]),
-        WordCorespondance(id=5, label="non", words=[6], word_items=[words[6]]),
-        WordCorespondance(id=6, label="prenom", words=[7], word_items=[words[7]]),
+        WordCorespondance(id=1, label="age", words=[1], word_items=[words[1]]),
+        WordCorespondance(id=2, label="bonjour/merci", words=[2, 7], word_items=[words[2], words[7]]),
+        WordCorespondance(id=3, label="coiffeur", words=[3], word_items=[words[3]]),
+        WordCorespondance(id=4, label="habiter", words=[4], word_items=[words[4]]),
+        WordCorespondance(id=5, label="non", words=[5], word_items=[words[5]]),
+        WordCorespondance(id=6, label="prenom", words=[6], word_items=[words[6]]),
     ]
     db.add_all(corespondances)
 
     # 4. Lessons
     lessons = {
-        1: Lesson(id=1, title="Les salutations", words=[words[1], words[2]]),
-        2: Lesson(id=2, title="Les bases", words=[words[5], words[6]]),
-        3: Lesson(id=3, title="Les expressions utiles", words=[words[3], words[7]]),
+        1: Lesson(id=1, title="Les salutations", words=[words[2], words[7]]),
+        2: Lesson(id=2, title="Les bases", words=[words[4], words[5]]),
+        3: Lesson(id=3, title="Les expressions utiles", words=[words[1], words[6]]),
     }
     db.add_all(lessons.values())
 
@@ -394,7 +428,7 @@ async def interrogate_ai(
     corresp = find_corespondance_by_label(db, prediction.word)
 
     label = corresp.label if corresp else prediction.word
-    matched_word_ids = corresp.words if corresp else []
+    matched_word_ids = list(corresp.words) if (corresp and corresp.words) else []
 
     # 2. Retrieve matched words from words table
     matched_words_db = (
@@ -402,29 +436,59 @@ async def interrogate_ai(
         if corresp
         else (db.query(Word).filter(Word.id.in_(matched_word_ids)).all() if matched_word_ids else [])
     )
+    # Direct fallback if corresp was None or returned no words: query Word table
+    if not matched_words_db:
+        norm_pred = normalize_label(prediction.word)
+        direct_matches = [w for w in db.query(Word).all() if normalize_label(w.string) == norm_pred]
+        if direct_matches:
+            matched_words_db = direct_matches
+            matched_word_ids = [w.id for w in direct_matches]
+
     matched_strings = [w.string for w in matched_words_db] if matched_words_db else [prediction.word]
 
-    # 3. Verify if any matched word corresponds to the lesson word tested in front
-    is_valid = True
-    tested_label = target_expected_word or (f"Word #{target_expected_word_id}" if target_expected_word_id else None)
-
+    # Resolve tested word object and string if id was provided
+    tested_word_obj = None
     if target_expected_word_id is not None:
-        is_valid = target_expected_word_id in matched_word_ids
-    elif target_expected_word:
-        norm_target = normalize_label(target_expected_word)
+        tested_word_obj = db.query(Word).filter(Word.id == target_expected_word_id).first()
+
+    tested_label = (
+        target_expected_word
+        or (tested_word_obj.string if tested_word_obj else None)
+        or (f"Word #{target_expected_word_id}" if target_expected_word_id else label)
+    )
+
+    # 3. Verify if any matched word corresponds to the lesson word tested in front
+    is_valid = False
+
+    # Check A: Target word ID is in matched word IDs
+    if target_expected_word_id is not None and target_expected_word_id in matched_word_ids:
+        is_valid = True
+
+    # Check B: String comparison between target word and matched strings or predicted label
+    norm_target = normalize_label(tested_label or target_expected_word or "")
+    if norm_target:
         norm_matched = [normalize_label(s) for s in matched_strings]
         norm_label_parts = [normalize_label(p) for p in label.replace("_", "/").split("/")]
-        is_valid = (norm_target in norm_matched) or (norm_target in norm_label_parts)
+        norm_pred = normalize_label(prediction.word)
+
+        if (norm_target in norm_matched) or (norm_target in norm_label_parts) or (norm_target == norm_pred):
+            is_valid = True
+
+    # Check C: Tested word object string match
+    if not is_valid and tested_word_obj:
+        norm_obj = normalize_label(tested_word_obj.string)
+        if (norm_obj in [normalize_label(s) for s in matched_strings]) or (norm_obj == normalize_label(prediction.word)):
+            is_valid = True
 
     # 4. Formulate human-readable feedback message
     if is_valid:
         if len(matched_strings) > 1:
             message = (
-                f"Bravo ! Le signe correspond bien à '{tested_label or label}'. "
+                f"Bravo ! Le signe correspond bien à '{tested_label}'. "
                 f"Ce signe en LSF correspond à : {', '.join(matched_strings)}."
             )
         else:
-            message = f"Bravo ! Le signe pour '{tested_label or label}' a été reconnu avec succès !"
+            message = f"Bravo ! Le signe pour '{tested_label}' a été reconnu avec succès !"
     else:
         message = (
             f"Le signe reconnu est '{label}' ({', '.join(matched_strings)}), "
@@ -444,4 +508,8 @@ async def interrogate_ai(
     )
 
 
-app.mount("/videos", StaticFiles(directory="videos"), name="videos")
+app.mount(
+    "/videos",
+    StaticFiles(directory=str(Path(__file__).resolve().parent / "videos")),
+    name="videos",
+)
