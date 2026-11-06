@@ -51,7 +51,8 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
-  // Also applies to `vite preview`
+  // Also applies to `vite preview`: when `preview.proxy` / `preview.allowedHosts` are not set,
+  // Vite reuses the `server` values (see https://vite.dev/config/preview-options#preview-proxy)
   server: {
     // With VITE_API_URL=/api the front reaches the backend through this proxy (same origin),
     // so only the front has to be exposed when testing on a phone through an HTTPS tunnel
