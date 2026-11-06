@@ -28,7 +28,13 @@
   </div>
 
   <ModalScreen v-model="showLessonModal">
-    <VideoBlock v-if="firstWord" :video-src="firstWordVideoSrc" :word="firstWord" />
+    <div v-if="currentWord" class="lesson-modal-content">
+      <VideoBlock
+        :key="currentWord.id"
+        :video-src="currentWordVideoSrc"
+        :word="currentWord"
+      />
+    </div>
   </ModalScreen>
 </template>
 <script setup lang="ts">
@@ -45,7 +51,6 @@ const points = ref(440)
 // real lessons exist in the backend. Negative ids keep them from ever
 // colliding with real lesson ids. Always locked since there's no content behind them.
 const placeholderLessons: Lesson[] = [
-  { id: -1, title: "Les salutations", status: "locked" },
   { id: -2, title: "Les couleurs", status: "locked" },
   { id: -3, title: "Les nombres", status: "locked" },
   { id: -4, title: "La famille", status: "locked" },
@@ -72,12 +77,12 @@ function selectLesson(lesson: Lesson) {
 const showLessonModal = ref(false)
 const activeLesson = ref<LessonWithWords | null>(null)
 
-const firstWord = computed(() => {
-  return activeLesson.value?.words[0] || null
+const currentWord = computed(() => {
+  return activeLesson.value?.words[0] ?? null
 })
-const firstWordVideoSrc = computed(() => {
-  const firstWord = activeLesson.value?.words[0]
-  return firstWord ? ApiClass.getVideoUrl(firstWord.video) : ""
+
+const currentWordVideoSrc = computed(() => {
+  return currentWord.value ? ApiClass.getVideoUrl(currentWord.value.video) : ""
 })
 
 function startLesson(lessonId: number) {
@@ -140,4 +145,13 @@ onMounted(fetchLessons)
   gap: 16px;
   width: 100%;
 }
+
+.lesson-modal-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
 </style>

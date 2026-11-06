@@ -65,8 +65,30 @@ class VideoDetail(VideoListItem):
     url: str
 
 
+# ── Word Corespondance ────────────────────────────────────────────────────────
+
+class WordCorespondanceListItem(BaseModel):
+    id: int
+    label: str
+    words: List[int]
+
+
+class WordCorespondanceDetail(BaseModel):
+    id: int
+    label: str
+    words: List[int]
+    matched_words: List[WordDetail] = []
+
+
 # ── AI ────────────────────────────────────────────────────────────────────────
 
 class AIWordResponse(BaseModel):
     word: str
     confidence: Optional[float] = None
+    label: str
+    true_label: Optional[str] = None
+    matched_word_ids: List[int] = []
+    matched_words: List[str] = []
+    is_valid: bool = True
+    tested_word: Optional[str] = None
+    message: Optional[str] = None

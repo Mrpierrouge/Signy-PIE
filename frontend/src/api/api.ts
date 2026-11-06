@@ -1,5 +1,5 @@
 import type { Lesson, LessonWithWords } from "@/types/lesson"
-import type { Word } from "@/types/word"
+import type { AIWordResponse, Word } from "@/types/word"
 
 class API {
   readonly baseUrl: string
@@ -45,7 +45,14 @@ class API {
     return `backend${video}`
   }
 
-  async tryWord(video: FormData): Promise<{ word: string; confidence: number | null }> {
+  async tryWord(
+    video: FormData,
+    expectedWord: string,
+  ): Promise<AIWordResponse> {
+    if (!video.has("expected_word")) {
+      video.append("expected_word", expectedWord)
+    }
+
     const response = await fetch(`${this.baseUrl}/ai/interrogate`, {
       method: "POST",
       body: video,

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Table
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, JSON, String, Table
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -22,6 +22,13 @@ user_lessons_done = Table(
     Column("lesson_id", ForeignKey("lessons.id"), primary_key=True),
 )
 
+word_corespondance_words = Table(
+    "word_corespondance_words",
+    Base.metadata,
+    Column("corespondance_id", ForeignKey("word_corespondance.id"), primary_key=True),
+    Column("word_id", ForeignKey("words.id"), primary_key=True),
+)
+
 
 # ── Core tables ───────────────────────────────────────────────────────────────
 
@@ -41,6 +48,11 @@ class Word(Base):
 
     video = relationship("Video")
     lessons = relationship("Lesson", secondary=lesson_words, back_populates="words")
+    corespondances = relationship(
+        "WordCorespondance",
+        secondary=word_corespondance_words,
+        back_populates="word_items",
+    )
 
 
 class Lesson(Base):
@@ -53,6 +65,27 @@ class Lesson(Base):
     users_completed = relationship(
         "User", secondary=user_lessons_done, back_populates="lessons_done"
     )
+
+
+class WordCorespondance(Base):
+    __tablename__ = "word_corespondance"
+
+    id = Column(Integer, primary_key=True, index=True)
+    label = Column(String, unique=True, nullable=False, index=True)
+    words = Column(JSON, nullable=False, default=list)  # List of Word IDs: [1, 2]
+
+    word_items = relationship(
+        "Word",
+        secondary=word_corespondance_words,
+        back_populates="corespondances",
+    )
+
+    def get_words(self, db) -> list[Word]:
+        if self.word_items:
+            return list(self.word_items)
+        if not self.words:
+            return []
+        return db.query(Word).filter(Word.id.in_(self.words)).all()
 
 
 class User(Base):

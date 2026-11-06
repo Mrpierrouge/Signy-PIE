@@ -28,7 +28,7 @@ except ImportError:  # pragma: no cover
 
 DEFAULT_LABELS = [
     "age",
-    "bonjour",
+    "bonjour-merci",
     "coiffeur",
     "habiter",
     "non",
