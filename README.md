@@ -169,8 +169,9 @@ Base URL : `http://localhost:8000`
 | Paramètre | Type | Description |
 |-----------|------|-------------|
 | `video` | `file` | Fichier `.npy` MediaPipe Holistic (shape `[T, 444]`) ou blob vidéo |
-| `expected_word` | `string` (form/query) | Mot attendu (texte) |
-| `expected_word_id` | `int` (form/query) | ID du mot attendu |
+| `expected_word` | `string` (form) | Mot attendu dans la leçon (ex. `Bonjour`) ; le backend le résout vers son label canonique |
+
+Le backend recherche le mot dans `word_corespondance` avant de valider la prédiction. Ainsi, `Bonjour` et `Merci` sont tous deux associés au label modèle `bonjour-merci`, qui est comparé au label prédit.
 
 **Réponse 200 :**
 ```json
@@ -200,13 +201,13 @@ Base URL : `http://localhost:8000`
 | Index | Label modèle | Mot(s) | ID Word |
 |-------|-------------|--------|---------|
 | 0 | `age` | Âge | 1 |
-| 1 | `bonjour` | Bonjour, Merci | 2, 7 |
+| 1 | `bonjour-merci` | Bonjour, Merci | 2, 7 |
 | 2 | `coiffeur` | Coiffeur | 3 |
 | 3 | `habiter` | Habiter | 4 |
 | 4 | `non` | Non | 5 |
 | 5 | `prenom` | Prénom | 6 |
 
-La table `word_corespondance` fait le lien entre les labels prédits par le modèle et les mots de la base. Bonjour et Merci partagent le même signe (label `bonjour/merci`).
+La table `word_corespondance` fait le lien entre les labels prédits par le modèle et les mots de la base. Bonjour et Merci partagent le même signe et le label canonique `bonjour-merci`. Lors de l'analyse, le frontend transmet le mot de la leçon dans `expected_word` ; le backend résout ce mot vers son label canonique pour vérifier la prédiction.
 
 ---
 
@@ -250,7 +251,7 @@ Au démarrage, si la base est vide ou désalignée, elle est automatiquement peu
 | ID | Label | Words (IDs) |
 |----|-------|-------------|
 | 1 | `age` | [1] |
-| 2 | `bonjour/merci` | [2, 7] |
+| 2 | `bonjour-merci` | [2, 7] |
 | 3 | `coiffeur` | [3] |
 | 4 | `habiter` | [4] |
 | 5 | `non` | [5] |

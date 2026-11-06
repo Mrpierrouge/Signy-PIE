@@ -55,14 +55,10 @@ class API {
 
   async tryWord(
     video: FormData,
-    expectedWord?: string,
-    expectedWordId?: number,
+    expectedWord: string,
   ): Promise<AIWordResponse> {
-    if (expectedWord && !video.has("expected_word")) {
+    if (!video.has("expected_word")) {
       video.append("expected_word", expectedWord)
-    }
-    if (expectedWordId !== undefined && !video.has("expected_word_id")) {
-      video.append("expected_word_id", expectedWordId.toString())
     }
 
     const response = await fetch(`${this.baseUrl}/ai/interrogate`, {

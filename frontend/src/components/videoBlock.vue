@@ -78,7 +78,7 @@ async function onRecordingReady(blob: Blob) {
   aiError.value = ""
   isChecking.value = true
   try {
-    aiResult.value = await ApiClass.tryWord(formData, props.word.string, props.word.id)
+    aiResult.value = await ApiClass.tryWord(formData, props.word.string)
   } catch {
     aiError.value = "Impossible d'analyser l'enregistrement"
   } finally {
