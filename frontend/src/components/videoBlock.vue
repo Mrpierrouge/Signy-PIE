@@ -1,35 +1,7 @@
 <template>
   <div class="video-block">
-    <h2 class="word-title">{{ word.string }}</h2>
+    <h2 v-if="showTitle" class="word-title">{{ word.string }}</h2>
     <videoCard ref="videoCardRef" :video-src="videoSrc" @recording-ready="onRecordingReady" />
-    <button
-      class="play-button"
-      v-if="!videoCardRef?.cameraActive"
-      @click="videoCardRef?.activateCamera()"
-    >
-      A moi de jouer
-    </button>
-    <template v-else>
-      <!-- <button class="play-button" @click="videoCardRef?.stopCamera()">Revenir à la vidéo</button> -->
-      <BigButton
-        type="primary"
-        id="stop-camera-button"
-        @click="videoCardRef?.stopCamera()"
-        icon="replay"
-      >
-        Revoir la vidéo
-      </BigButton>
-      <button
-        class="play-button"
-        v-if="!videoCardRef?.isRecording"
-        @click="videoCardRef?.startRecording()"
-      >
-        Démarrer l'enregistrement
-      </button>
-      <button class="play-button stop-button" v-else @click="videoCardRef?.stopRecording()">
-        Arrêter l'enregistrement
-      </button>
-    </template>
 
     <div v-if="isChecking" class="ai-result checking">Analyse en cours...</div>
     <div v-else-if="aiError" class="ai-result error">{{ aiError }}</div>
@@ -62,25 +34,33 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import VideoCard from "./cards/videoCard.vue"
 import { ApiClass } from "@/api/api"
 import type { AIWordResponse } from "@/types/word"
-import BigButton from "./buttons/bigButton.vue"
 
-const props = defineProps<{
-  videoSrc: string
-  word: {
-    id?: number
-    string: string
-    video: string
-  }
-}>()
+const props = withDefaults(
+  defineProps<{
+    videoSrc: string
+    word: {
+      id?: number
+      string: string
+      video: string
+    }
+    showTitle?: boolean
+  }>(),
+  {
+    showTitle: true,
+  },
+)
 
 const videoCardRef = ref<InstanceType<typeof VideoCard> | null>(null)
 const isChecking = ref(false)
 const aiResult = ref<AIWordResponse | null>(null)
 const aiError = ref("")
+
+const cameraActive = computed(() => Boolean(videoCardRef.value?.cameraActive))
+const isCameraRecording = computed(() => Boolean(videoCardRef.value?.isRecording))
 
 async function onRecordingReady(blob: Blob) {
   const formData = new FormData()
@@ -97,29 +77,24 @@ async function onRecordingReady(blob: Blob) {
     isChecking.value = false
   }
 }
+
+defineExpose({
+  activateCamera: () => videoCardRef.value?.activateCamera(),
+  stopCamera: () => videoCardRef.value?.stopCamera(),
+  startRecording: () => videoCardRef.value?.startRecording(),
+  stopRecording: () => videoCardRef.value?.stopRecording(),
+  cameraActive,
+  isRecording: isCameraRecording,
+})
 </script>
 <style scoped>
 .video-block {
-  width: 90%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 15px;
 
-  .play-button {
-    background-color: var(--color-darkpurple);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-
-    &.stop-button {
-      background-color: #d43d3d;
-    }
-  }
   .word-title {
     font-size: 18px;
     font-weight: bold;

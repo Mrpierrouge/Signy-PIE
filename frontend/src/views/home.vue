@@ -20,17 +20,11 @@
     </div>
   </div>
 
-  <ModalScreen v-model="showLessonModal">
-    <div v-if="currentWord" class="lesson-modal-content">
-      <VideoBlock :key="currentWord.id" :video-src="currentWordVideoSrc" :word="currentWord" />
-    </div>
-  </ModalScreen>
 </template>
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
+import { useRouter } from "vue-router"
 import LessonCard from "@/components/cards/lessonCard.vue"
-import ModalScreen from "@/components/modalScreen.vue"
-import VideoBlock from "@/components/videoBlock.vue"
 import TitleLogoBlock from "@/components/titleLogoBlock.vue"
 import { ApiClass } from "@/api/api"
 import type { Lesson, LessonWithWords } from "@/types/lesson"
@@ -64,22 +58,12 @@ function selectLesson(lesson: Lesson) {
   selectedLesson.value = lesson.id
 }
 
-const showLessonModal = ref(false)
-const activeLesson = ref<LessonWithWords | null>(null)
-
-const currentWord = computed(() => {
-  return activeLesson.value?.words[0] ?? null
-})
-
-const currentWordVideoSrc = computed(() => {
-  return currentWord.value ? ApiClass.getVideoUrl(currentWord.value.video) : ""
-})
+const router = useRouter()
 
 function startLesson(lessonId: number) {
   const lesson = fetchedLessons.value.find((lesson) => lesson.id === lessonId)
   if (!lesson || lesson.words.length === 0) return
-  activeLesson.value = lesson
-  showLessonModal.value = true
+  router.push({ name: "lesson", params: { lessonId: String(lessonId) } })
 }
 
 async function fetchLessons() {

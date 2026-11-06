@@ -26,7 +26,12 @@
 </template>
 <script setup lang="ts">
 import { ref, onBeforeUnmount, watch } from "vue"
-import { detectFrame, FEATURE_SIZE, normalizeSequence, preloadHolisticExtractor } from "@/lib/holisticExtractor"
+import {
+  detectFrame,
+  FEATURE_SIZE,
+  normalizeSequence,
+  preloadHolisticExtractor,
+} from "@/lib/holisticExtractor"
 import { encodeNpyFloat32 } from "@/lib/npy"
 
 const props = defineProps<{
@@ -140,7 +145,7 @@ defineExpose({
 <style scoped>
 .video-card {
   background-color: var(--color-lightgray);
-  width: 100%;
+  width: 80%;
   border-radius: 20px;
   overflow: hidden;
   position: relative;

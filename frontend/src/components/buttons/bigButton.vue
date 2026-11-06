@@ -9,13 +9,17 @@
   </div>
 </template>
 <script setup lang="ts">
-import { defineProps } from "vue"
-const props = defineProps<{
-  type: "primary" | "secondary"
-  id?: string
-  icon?: string
-  onClick: () => void
-}>()
+const props = withDefaults(
+  defineProps<{
+    type: "primary" | "secondary"
+    id?: string
+    icon?: string
+    onClick?: () => void
+  }>(),
+  {
+    onClick: () => undefined,
+  },
+)
 </script>
 <style scoped>
 .button {
