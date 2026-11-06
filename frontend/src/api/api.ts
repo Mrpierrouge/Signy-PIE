@@ -1,5 +1,5 @@
 import type { Lesson, LessonWithWords } from "@/types/lesson"
-import type { AIWordResponse, Word, WordCorespondance } from "@/types/word"
+import type { AIWordResponse, Word } from "@/types/word"
 
 class API {
   readonly baseUrl: string
@@ -36,14 +36,6 @@ class API {
     const response = await fetch(`${this.baseUrl}/words/${id}`)
     if (!response.ok) {
       throw new Error(`Failed to fetch word with id ${id}: ${response.statusText}`)
-    }
-    return response.json()
-  }
-
-  async getWordCorespondances(): Promise<WordCorespondance[]> {
-    const response = await fetch(`${this.baseUrl}/word-corespondance`)
-    if (!response.ok) {
-      throw new Error(`Failed to fetch word correspondances: ${response.statusText}`)
     }
     return response.json()
   }
