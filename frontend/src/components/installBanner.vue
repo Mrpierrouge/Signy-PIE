@@ -127,7 +127,7 @@ onUnmounted(() => {
   font-size: var(--font-size-body);
 
   strong {
-    font-size: var(--font-size-h3);
+    font-size: var(--font-size-h4);
   }
 }
 

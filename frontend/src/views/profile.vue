@@ -36,14 +36,22 @@
 
       <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
       <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
-
-      <button type="submit" class="submit-button">Créer mon compte</button>
+      <BigButton type="primary" id="submit-button" @click="handleSubmit">
+        Créer mon compte
+      </BigButton>
+      <BigButton
+        type="secondary"
+        id="login-button"
+        @click="console.log('Navigating to login page...')"
+      >
+        J'ai déjà un compte
+      </BigButton>
     </form>
   </div>
 </template>
 <script setup lang="ts">
 import { reactive, ref } from "vue"
-
+import BigButton from "@/components/buttons/bigButton.vue"
 const form = reactive({
   firstName: "",
   lastName: "",
@@ -122,18 +130,6 @@ function handleSubmit() {
     color: var(--color-darkpurple);
     font-size: 14px;
     text-align: center;
-  }
-
-  .submit-button {
-    background-color: var(--color-darkpurple);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 10px 16px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 10px;
   }
 }
 </style>

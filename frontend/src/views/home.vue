@@ -1,18 +1,17 @@
 <template>
   <div class="home-container">
-    <div class="stats-row">
-      <span class="stats-text">Gagne des points, vite !</span>
-      <div class="points">
-        <svg class="star-icon" viewBox="0 0 20 20" fill="currentColor">
-          <path
-            d="M10 0 L12.6 6.9 L20 7.6 L14.4 12.4 L16.2 20 L10 15.9 L3.8 20 L5.6 12.4 L0 7.6 L7.4 6.9 Z"
-          />
-        </svg>
-        <span>{{ points }} points</span>
-      </div>
+    <div class="home-header page-header">
+      <TitleLogoBlock />
+      <div class="score-bubble"></div>
     </div>
 
-    <div class="title">Tes leçons</div>
+    <h2
+      :style="{
+        color: 'var(--color-darkpurple)',
+      }"
+    >
+      Tes leçons
+    </h2>
 
     <div class="list">
       <LessonCard
@@ -29,11 +28,7 @@
 
   <ModalScreen v-model="showLessonModal">
     <div v-if="currentWord" class="lesson-modal-content">
-      <VideoBlock
-        :key="currentWord.id"
-        :video-src="currentWordVideoSrc"
-        :word="currentWord"
-      />
+      <VideoBlock :key="currentWord.id" :video-src="currentWordVideoSrc" :word="currentWord" />
     </div>
   </ModalScreen>
 </template>
@@ -42,6 +37,7 @@ import { computed, onMounted, ref } from "vue"
 import LessonCard from "@/components/cards/lessonCard.vue"
 import ModalScreen from "@/components/modalScreen.vue"
 import VideoBlock from "@/components/videoBlock.vue"
+import TitleLogoBlock from "@/components/titleLogoBlock.vue"
 import { ApiClass } from "@/api/api"
 import type { Lesson, LessonWithWords } from "@/types/lesson"
 
@@ -103,6 +99,17 @@ async function fetchLessons() {
 onMounted(fetchLessons)
 </script>
 <style scoped>
+.home-header {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+.score-bubble {
+  width: 1px;
+  height: 1px;
+}
 .home-container {
   width: 90%;
   display: flex;
@@ -117,7 +124,7 @@ onMounted(fetchLessons)
 }
 .stats-text {
   font-family: var(--font-family);
-  font-size: var(--font-size-h3);
+  font-size: var(--font-size-h4);
   font-weight: var(--font-weight-regular);
 }
 .points {
@@ -126,7 +133,7 @@ onMounted(fetchLessons)
   gap: 6px;
   color: var(--color-pink);
   font-family: var(--font-family);
-  font-size: var(--font-size-h3);
+  font-size: var(--font-size-h4);
   font-weight: var(--font-weight-bold);
   flex-shrink: 0;
 }
@@ -153,5 +160,4 @@ onMounted(fetchLessons)
   align-items: center;
   gap: 15px;
 }
-
 </style>

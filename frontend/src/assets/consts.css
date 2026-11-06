@@ -1,5 +1,7 @@
 :root {
-  --color-darkpurple: #713ec3;
+  --color-purple: #7848c4;
+  --color-darkpurple: #2a006b;
+  --color-babypurple: #e4d4ff;
   --color-lightblue: #b5baff;
   --color-pink: #ff62bb;
   --color-lightpink: #f9b2d7;
@@ -7,21 +9,39 @@
   --color-black: #110003;
   --color-lightgray: #d9d9d9;
 
+  --color-gradient-primary: linear-gradient(
+    90deg,
+    var(--color-darkpurple) 0%,
+    var(--color-purple) 100%
+  );
+
   --font-family: Helvetica, Arial, sans-serif;
 
-  --font-size-h1: 24px;
-  --font-size-h2: 18px;
-  --font-size-h3: 16px;
-  --font-size-body: 12px;
-  --font-size-small: 10px;
+  --font-size-h2: 28px;
+  --font-size-title: 24px;
+  --font-size-h3: 20px;
+  --font-size-h: 16px;
+  --font-size-body: 14px;
+  --font-size-small: 12px;
 
   --font-weight-regular: 400;
   --font-weight-bold: 700;
 }
 
-body {
+* {
+  box-sizing: border-box;
   margin: 0;
+  padding: 0;
+}
+
+body {
   background-color: var(--color-black);
   color: white;
   font-family: var(--font-family);
+}
+
+html,
+body,
+#app {
+  height: 100%;
 }

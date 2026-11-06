@@ -1,6 +1,6 @@
 <template>
   <div class="Signy-app">
-    <div class="appLogo"></div>
+    <!-- <div class="appLogo"></div> -->
     <div class="content">
       <RouterView />
     </div>
@@ -19,7 +19,7 @@ import InstallBanner from "./components/installBanner.vue"
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: var(--color-black);
+  background-color: var(--color-lightyellow);
 }
 .appLogo {
   width: 43px;
@@ -30,10 +30,23 @@ import InstallBanner from "./components/installBanner.vue"
   background-color: var(--color-darkpurple);
 }
 .content {
-  margin-top: 24px;
   margin-bottom: 110px;
   width: 100%;
   max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+</style>
+<style>
+.page-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  width: 100%;
+  padding: 15px;
+  padding-top: 5vh;
   display: flex;
   flex-direction: column;
   align-items: center;

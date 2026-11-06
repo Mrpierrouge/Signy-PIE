@@ -10,7 +10,15 @@
       A moi de jouer
     </button>
     <template v-else>
-      <button class="play-button" @click="videoCardRef?.stopCamera()">Revenir à la vidéo</button>
+      <!-- <button class="play-button" @click="videoCardRef?.stopCamera()">Revenir à la vidéo</button> -->
+      <BigButton
+        type="primary"
+        id="stop-camera-button"
+        @click="videoCardRef?.stopCamera()"
+        icon="replay"
+      >
+        Revoir la vidéo
+      </BigButton>
       <button
         class="play-button"
         v-if="!videoCardRef?.isRecording"
@@ -38,7 +46,10 @@
       <div class="result-details">
         <p v-if="aiResult.message" class="result-message">{{ aiResult.message }}</p>
 
-        <div v-if="aiResult.matched_words && aiResult.matched_words.length > 1" class="multi-words-info">
+        <div
+          v-if="aiResult.matched_words && aiResult.matched_words.length > 1"
+          class="multi-words-info"
+        >
           <span>Signe commun ({{ aiResult.label || aiResult.true_label }}) :</span>
           <strong>{{ aiResult.matched_words.join(", ") }}</strong>
         </div>
@@ -55,6 +66,7 @@ import { ref } from "vue"
 import VideoCard from "./cards/videoCard.vue"
 import { ApiClass } from "@/api/api.ts"
 import type { AIWordResponse } from "@/types/word"
+import BigButton from "./buttons/bigButton.vue"
 
 const props = defineProps<{
   videoSrc: string

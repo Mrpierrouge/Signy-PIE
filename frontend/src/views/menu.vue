@@ -30,10 +30,10 @@ const route = useRoute()
   align-items: center;
   justify-content: space-around;
   gap: 8px;
-  background-color: var(--color-black);
+  background-color: var(--color-lightyellow);
   border-radius: 75px 75px 0px 0px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  width: 100%;
+  border: 1px solid var(--color-darkpurple);
+  width: 110%;
   max-width: 400px;
   padding: 14px 12px;
 }
@@ -43,7 +43,7 @@ const route = useRoute()
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  width: 60px;
+  width: 67px;
   color: rgba(255, 255, 255, 0.4);
   text-decoration: none;
   font-family: var(--font-family);
@@ -51,12 +51,12 @@ const route = useRoute()
 }
 
 .menu-item.active {
-  color: var(--color-pink);
+  color: var(--color-purple);
 }
 
 .menu-item .icon {
-  width: 22px;
-  height: 22px;
+  width: 25px;
+  height: 25px;
   mask-size: contain;
   mask-repeat: no-repeat;
   mask-position: center;

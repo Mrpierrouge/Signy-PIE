@@ -82,7 +82,7 @@ defineEmits<{
   }
 
   .headline {
-    font-size: var(--font-size-h2);
+    font-size: var(--font-size-h3);
     font-weight: var(--font-weight-bold);
   }
 
@@ -115,7 +115,7 @@ defineEmits<{
         border-radius: 16px;
         padding: 14px;
         font-family: var(--font-family);
-        font-size: var(--font-size-h3);
+        font-size: var(--font-size-h4);
         font-weight: var(--font-weight-bold);
         cursor: pointer;
         margin-top: 6px;
@@ -199,16 +199,14 @@ defineEmits<{
         border-radius: 16px;
         padding: 14px;
         font-family: var(--font-family);
-        font-size: var(--font-size-h3);
+        font-size: var(--font-size-h4);
         font-weight: var(--font-weight-bold);
         cursor: pointer;
       }
     }
 
     &.selected {
-      .extra {
-        grid-template-rows: 1fr;
-      }
+      background: var(--color-gradient-primary);
     }
   }
 }
