@@ -32,7 +32,7 @@
     >
       <div class="status-badge">
         <span v-if="aiResult.is_valid">✓ Signe validé pour « {{ word.string }} » !</span>
-        <span v-else>✗ Mauvais signe</span>
+        <span v-else>✗ Le modèle a deviné : « {{ aiResult.word }} »</span>
       </div>
 
       <div class="result-details">

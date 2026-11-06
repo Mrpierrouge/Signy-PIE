@@ -29,26 +29,6 @@
 
   <ModalScreen v-model="showLessonModal">
     <div v-if="currentWord" class="lesson-modal-content">
-      <div v-if="activeLesson && activeLesson.words.length > 1" class="lesson-stepper">
-        <button
-          class="step-btn"
-          :disabled="currentWordIndex === 0"
-          @click="currentWordIndex--"
-        >
-          ← Précédent
-        </button>
-        <span class="step-indicator">
-          Mot {{ currentWordIndex + 1 }} / {{ activeLesson.words.length }} : <strong>{{ currentWord.string }}</strong>
-        </span>
-        <button
-          class="step-btn"
-          :disabled="currentWordIndex >= activeLesson.words.length - 1"
-          @click="currentWordIndex++"
-        >
-          Suivant →
-        </button>
-      </div>
-
       <VideoBlock
         :key="currentWord.id"
         :video-src="currentWordVideoSrc"
@@ -96,11 +76,9 @@ function selectLesson(lesson: Lesson) {
 
 const showLessonModal = ref(false)
 const activeLesson = ref<LessonWithWords | null>(null)
-const currentWordIndex = ref(0)
 
 const currentWord = computed(() => {
-  if (!activeLesson.value || activeLesson.value.words.length === 0) return null
-  return activeLesson.value.words[currentWordIndex.value] || null
+  return activeLesson.value?.words[0] ?? null
 })
 
 const currentWordVideoSrc = computed(() => {
@@ -111,7 +89,6 @@ function startLesson(lessonId: number) {
   const lesson = fetchedLessons.value.find((lesson) => lesson.id === lessonId)
   if (!lesson || lesson.words.length === 0) return
   activeLesson.value = lesson
-  currentWordIndex.value = 0
   showLessonModal.value = true
 }
 
@@ -177,36 +154,4 @@ onMounted(fetchLessons)
   gap: 15px;
 }
 
-.lesson-stepper {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 90%;
-  gap: 10px;
-  padding: 8px 12px;
-  background-color: var(--color-lightgray);
-  border-radius: 12px;
-}
-
-.step-btn {
-  background-color: var(--color-darkpurple);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-
-  &:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-  }
-}
-
-.step-indicator {
-  font-size: 14px;
-  color: var(--color-black);
-}
 </style>
