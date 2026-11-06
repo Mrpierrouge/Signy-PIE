@@ -38,10 +38,14 @@ body {
   background-color: var(--color-black);
   color: white;
   font-family: var(--font-family);
+  overscroll-behavior: none;
 }
 
 html,
 body,
 #app {
   height: 100%;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
 }

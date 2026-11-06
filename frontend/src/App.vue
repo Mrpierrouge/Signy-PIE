@@ -17,9 +17,11 @@ import InstallBanner from "./components/installBanner.vue"
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
+  justify-content: flex-start;
+  height: 100dvh;
+  min-height: 100dvh;
   background-color: var(--color-lightyellow);
+  overflow: hidden;
 }
 .appLogo {
   width: 43px;
@@ -30,13 +32,16 @@ import InstallBanner from "./components/installBanner.vue"
   background-color: var(--color-darkpurple);
 }
 .content {
-  margin-bottom: 110px;
+  flex: 1;
+  min-height: 0;
   width: 100%;
   max-width: 520px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  margin-bottom: 110px;
 }
 </style>
 <style>
@@ -45,12 +50,12 @@ import InstallBanner from "./components/installBanner.vue"
   top: 0;
   z-index: 10;
   width: 100%;
-  padding: 15px;
   padding-top: 5vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background: var(--color-lightyellow);
 }
 input {
   background-color: var(--color-lightyellow);

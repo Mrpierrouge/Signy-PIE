@@ -5,7 +5,7 @@
       <div class="score-bubble"></div>
     </div>
 
-    <h2 class="lessons-title">Tes leçons</h2>
+    <h2 class="lessons-title">Tes leçons :</h2>
     <div class="list-container">
       <div class="list">
         <LessonCard
@@ -94,10 +94,7 @@ onMounted(fetchLessons)
 </script>
 <style scoped>
 .home-header {
-  width: 100%;
-  display: flex;
   flex-direction: row;
-  align-items: center;
   justify-content: space-between;
   flex-shrink: 0;
 }
@@ -107,18 +104,20 @@ onMounted(fetchLessons)
 }
 .home-container {
   width: 90%;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0;
 }
 .lessons-title {
   color: var(--color-darkpurple);
   position: relative;
   z-index: 2;
   flex-shrink: 0;
+  margin-top: 5vh;
   margin-bottom: 20px;
-  background: var(--color-background);
+  background: var(--color-lightyellow);
 }
 
 .points {
@@ -143,6 +142,8 @@ onMounted(fetchLessons)
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
 .list {
