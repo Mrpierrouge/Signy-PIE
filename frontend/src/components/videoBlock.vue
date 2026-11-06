@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import VideoCard from "./cards/videoCard.vue"
-import { ApiClass } from "@/api/api.ts"
+import { ApiClass } from "@/api/api"
 import type { AIWordResponse } from "@/types/word"
 import BigButton from "./buttons/bigButton.vue"
 

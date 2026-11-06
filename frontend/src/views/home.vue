@@ -5,23 +5,18 @@
       <div class="score-bubble"></div>
     </div>
 
-    <h2
-      :style="{
-        color: 'var(--color-darkpurple)',
-      }"
-    >
-      Tes leçons
-    </h2>
-
-    <div class="list">
-      <LessonCard
-        v-for="lesson in lessons"
-        :key="lesson.id"
-        :lesson="lesson"
-        :selected="selectedLesson === lesson.id"
-        @click="selectLesson(lesson)"
-        @start="startLesson(lesson.id)"
-      />
+    <h2 class="lessons-title">Tes leçons</h2>
+    <div class="list-container">
+      <div class="list">
+        <LessonCard
+          v-for="lesson in lessons"
+          :key="lesson.id"
+          :lesson="lesson"
+          :selected="selectedLesson === lesson.id"
+          @click="selectLesson(lesson)"
+          @start="startLesson(lesson.id)"
+        />
+      </div>
     </div>
   </div>
 
@@ -104,6 +99,7 @@ onMounted(fetchLessons)
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 .score-bubble {
   width: 1px;
@@ -111,21 +107,20 @@ onMounted(fetchLessons)
 }
 .home-container {
   width: 90%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  overflow: hidden;
 }
-.stats-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.lessons-title {
+  color: var(--color-darkpurple);
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  margin-bottom: 20px;
+  background: var(--color-background);
 }
-.stats-text {
-  font-family: var(--font-family);
-  font-size: var(--font-size-h4);
-  font-weight: var(--font-weight-regular);
-}
+
 .points {
   display: flex;
   align-items: center;
@@ -143,13 +138,20 @@ onMounted(fetchLessons)
   width: 20px;
   height: 20px;
 }
+.list-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
 .list {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 16px;
   width: 100%;
+  padding-bottom: 30px;
 }
 
 .lesson-modal-content {
