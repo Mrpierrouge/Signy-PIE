@@ -5,7 +5,7 @@ class API {
   readonly baseUrl: string
 
   constructor() {
-    this.baseUrl = "http://localhost:8000"
+    this.baseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:8000"
   }
 
   async getLessons(): Promise<LessonWithWords[]> {
@@ -40,9 +40,8 @@ class API {
     return response.json()
   }
 
-  // TODO: revert to `${this.baseUrl}${video}` once video files are served through the API
   getVideoUrl(video: string): string {
-    return `backend${video}`
+    return `${this.baseUrl}${video}`
   }
 
   async tryWord(
