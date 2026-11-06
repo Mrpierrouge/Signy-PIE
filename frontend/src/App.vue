@@ -5,10 +5,12 @@
       <RouterView />
     </div>
     <Menu />
+    <InstallBanner />
   </div>
 </template>
 <script setup lang="ts">
 import Menu from "./views/menu.vue"
+import InstallBanner from "./components/installBanner.vue"
 </script>
 <style scoped>
 .Signy-app {
