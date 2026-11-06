@@ -24,17 +24,22 @@ const words = ref<Word[]>([])
 const searchQuery = ref("")
 const DIACRITICS_PATTERN = /\p{Diacritic}/gu
 
+// Lowercase without accents, so that "age" matches "Âge"
+function normalize(str: string): string {
+  return str.normalize("NFD").replace(DIACRITICS_PATTERN, "").toLowerCase()
+}
+
 function firstLetterOf(str: string): string {
-  return str.normalize("NFD").replace(DIACRITICS_PATTERN, "").charAt(0).toUpperCase()
+  return normalize(str).charAt(0).toUpperCase()
 }
 
 const groupedWords = computed(() => {
   let sorted = [...words.value].sort((a, b) =>
     a.string.localeCompare(b.string, "fr", { sensitivity: "base" }),
   )
-  if (searchQuery.value.trim() !== "") {
-    const query = searchQuery.value.toLowerCase()
-    sorted = sorted.filter((word) => word.string.toLowerCase().includes(query))
+  const query = normalize(searchQuery.value.trim())
+  if (query !== "") {
+    sorted = sorted.filter((word) => normalize(word.string).includes(query))
   }
   if (sorted.length === 0) {
     return []
