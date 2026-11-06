@@ -40,9 +40,8 @@ class API {
     return response.json()
   }
 
-  // TODO: revert to `${this.baseUrl}${video}` once video files are served through the API
   getVideoUrl(video: string): string {
-    return `backend${video}`
+    return `${this.baseUrl}${video}`
   }
 
   async tryWord(video: FormData): Promise<{ word: string; confidence: number | null }> {

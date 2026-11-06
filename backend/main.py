@@ -249,7 +249,7 @@ async def list_videos(
     return [serialize_video(v) for v in videos]
 
 @app.get("/video/{video_id}", response_model=VideoDetail)
-@app.get("/videos/{video_id}", response_model=VideoDetail)
+@app.get("/videos/{video_id:int}", response_model=VideoDetail)
 async def get_video(
     video_id: int,
     user_id: Optional[int] = None,
