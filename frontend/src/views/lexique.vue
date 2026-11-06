@@ -70,17 +70,6 @@ onMounted(fetchAllWords)
   align-items: center;
   gap: 10px;
   padding: 20px 0;
-  .search > input {
-    background-color: var(--color-lightgray);
-    border: none;
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 14px;
-    color: var(--color-black);
-    &:focus {
-      outline: 2px solid var(--color-darkpurple);
-    }
-  }
 }
 .word-list {
   width: 100%;

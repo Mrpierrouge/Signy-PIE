@@ -52,4 +52,13 @@ import InstallBanner from "./components/installBanner.vue"
   align-items: center;
   justify-content: center;
 }
+input {
+  background-color: var(--color-lightyellow);
+  border: 1px solid var(--color-darkpurple);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-body);
+  color: var(--color-darkpurple);
+}
 </style>

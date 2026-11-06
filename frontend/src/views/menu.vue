@@ -44,7 +44,7 @@ const route = useRoute()
   align-items: center;
   gap: 6px;
   width: 67px;
-  color: rgba(255, 255, 255, 0.4);
+  color: black;
   text-decoration: none;
   font-family: var(--font-family);
   font-size: var(--font-size-small);

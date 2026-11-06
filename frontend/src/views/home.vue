@@ -15,10 +15,9 @@
 
     <div class="list">
       <LessonCard
-        v-for="(lesson, index) in lessons"
+        v-for="lesson in lessons"
         :key="lesson.id"
         :lesson="lesson"
-        :color-index="index"
         :selected="selectedLesson === lesson.id"
         @click="selectLesson(lesson)"
         @start="startLesson(lesson.id)"

@@ -106,18 +106,6 @@ function handleSubmit() {
       font-weight: bold;
       color: var(--color-white);
     }
-
-    input {
-      background-color: var(--color-lightgray);
-      border: none;
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 14px;
-      color: var(--color-black);
-      &:focus {
-        outline: 2px solid var(--color-darkpurple);
-      }
-    }
   }
 
   .error-message {
