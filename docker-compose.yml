@@ -25,7 +25,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+psycopg2://signy:signy@db:5432/signy
-      AI_MODEL_PATH: /app/lsf_model.onnx
+      AI_MODEL_PATH: /app/P4-SC4L.onnx
       # Comma-separated list — must match the order used during training (see backend/model_meta.json)
       AI_LABELS: "age,bonjour-merci,coiffeur,habiter,non,prenom"
     ports:
