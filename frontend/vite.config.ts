@@ -4,10 +4,14 @@ import { defineConfig } from "vite"
 import vue from "@vitejs/plugin-vue"
 import { VitePWA } from "vite-plugin-pwa"
 
+import { authMock } from "./mock/authMock"
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
+    // Fake /api/auth server for front-end work, enabled with VITE_MOCK_AUTH=true
+    authMock(),
     // Makes the app installable on mobile (manifest + service worker)
     VitePWA({
       registerType: "autoUpdate",

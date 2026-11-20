@@ -1,3 +1,4 @@
+import type { LoginCredentials, RegisterCredentials, User } from "@/types/auth"
 import type { Lesson, LessonWithWords } from "@/types/lesson"
 import type { AIWordResponse, Word } from "@/types/word"
 
@@ -58,6 +59,46 @@ class API {
     })
     if (!response.ok) {
       throw new Error(`Failed to try word: ${response.statusText}`)
+    }
+    return response.json()
+  }
+
+  // ── Authentication ────────────────────────────────────────────────────────
+  // The session is an HttpOnly cookie set by the backend, hence `credentials: "include"`.
+
+  async register(credentials: RegisterCredentials): Promise<User> {
+    return this.authRequest<User>("/auth/register", { method: "POST", body: credentials })
+  }
+
+  async login(credentials: LoginCredentials): Promise<User> {
+    return this.authRequest<User>("/auth/login", { method: "POST", body: credentials })
+  }
+
+  async getCurrentUser(): Promise<User> {
+    return this.authRequest<User>("/auth/me")
+  }
+
+  async logout(): Promise<void> {
+    await this.authRequest<void>("/auth/logout", { method: "POST" })
+  }
+
+  private async authRequest<T>(
+    path: string,
+    options: { method?: string; body?: unknown } = {},
+  ): Promise<T> {
+    const response = await fetch(`${this.baseUrl}${path}`, {
+      method: options.method ?? "GET",
+      credentials: "include",
+      headers: options.body ? { "Content-Type": "application/json" } : undefined,
+      body: options.body ? JSON.stringify(options.body) : undefined,
+    })
+    if (!response.ok) {
+      // FastAPI puts the error message in `detail`
+      const error = await response.json().catch(() => null)
+      throw new Error(typeof error?.detail === "string" ? error.detail : "Une erreur est survenue.")
+    }
+    if (response.status === 204) {
+      return undefined as T
     }
     return response.json()
   }

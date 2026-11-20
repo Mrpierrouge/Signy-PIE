@@ -1,5 +1,5 @@
 <template>
-  <button class="button" :class="type" @click="props.onClick">
+  <button class="button" :class="type" :type="nativeType" @click="props.onClick">
     <div
       v-if="props.icon"
       class="icon"
@@ -12,11 +12,15 @@
 const props = withDefaults(
   defineProps<{
     type: "primary" | "secondary"
+    // HTML type of the button. "button" by default so it never submits a form by accident;
+    // use native-type="submit" for a form's send button.
+    nativeType?: "button" | "submit"
     id?: string
     icon?: string
     onClick?: () => void
   }>(),
   {
+    nativeType: "button",
     onClick: () => undefined,
   },
 )
