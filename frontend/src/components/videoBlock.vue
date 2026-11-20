@@ -148,10 +148,12 @@ defineExpose({
   }
 
   .success-icon {
-    width: 220px;
-    height: 220px;
-    border-radius: 32px;
-    background-color: var(--color-lightpink);
+    width: 270px;
+    height: 250px;
+    background-image: url("@/assets/icons/success-page-logo.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
   }
 
   .success-message {

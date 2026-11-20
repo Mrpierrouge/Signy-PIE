@@ -5,9 +5,12 @@
         <span class="lesson-title-label">Leçon {{ lessonId }}</span>
       </div>
 
-      <button class="header-close" type="button" aria-label="Fermer la leçon" @click="closeLesson">
-        <span class="header-close-icon" aria-hidden="true" />
-      </button>
+      <button
+        class="header-close"
+        type="button"
+        aria-label="Fermer la leçon"
+        @click="closeLesson"
+      ></button>
     </header>
 
     <main v-if="lesson" class="lesson-content">
@@ -50,7 +53,9 @@
         </template>
         <template v-else-if="lessonStep === 'camera-ready'">
           <BigButton type="secondary" @click="replayCurrentWord">Revoir la vidéo</BigButton>
-          <BigButton type="primary" @click="startRecordingStep">Démarrer l'enregistrement</BigButton>
+          <BigButton type="primary" @click="startRecordingStep"
+            >Démarrer l'enregistrement</BigButton
+          >
         </template>
         <template v-else>
           <BigButton type="secondary" @click="replayCurrentWord">Revoir la vidéo</BigButton>
@@ -205,22 +210,13 @@ onMounted(() => {
 }
 
 .header-close {
-  width: 28px;
-  height: 28px;
-  border: 1px solid var(--color-darkpurple);
-  border-radius: 8px;
-  background: transparent;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
-
-.header-close-icon {
-  display: block;
-  width: 16px;
-  height: 16px;
-  background: var(--color-darkpurple);
-  border-radius: 4px;
+  width: 25px;
+  height: 25px;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  background-color: var(--color-darkpurple);
+  mask-image: url("@/assets/icons/cross.png");
 }
 
 .lesson-content {
