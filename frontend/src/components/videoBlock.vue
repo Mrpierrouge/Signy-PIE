@@ -1,41 +1,52 @@
 <template>
   <div class="video-block">
     <h2 v-if="showTitle" class="word-title">{{ word.string }}</h2>
-    <videoCard ref="videoCardRef" :video-src="videoSrc" @recording-ready="onRecordingReady" />
+    <div v-if="showSuccess" class="success-view">
+      <div class="success-icon" aria-hidden="true" />
+      <p class="success-message">
+        Bravo tu sais dire
+        <strong>{{ word.string }} !</strong>
+      </p>
+      <BigButton type="primary" @click="emit('success-continue')">Je continue</BigButton>
+    </div>
+    <template v-else>
+      <videoCard ref="videoCardRef" :video-src="videoSrc" @recording-ready="onRecordingReady" />
 
-    <div v-if="isChecking" class="ai-result checking">Analyse en cours...</div>
-    <div v-else-if="aiError" class="ai-result error">{{ aiError }}</div>
-    <div
-      v-else-if="aiResult"
-      class="ai-result"
-      :class="{ success: aiResult.is_valid, invalid: !aiResult.is_valid }"
-    >
-      <div class="status-badge">
-        <span v-if="aiResult.is_valid">✓ Signe validé pour « {{ word.string }} » !</span>
-        <span v-else>✗ Le modèle a deviné : « {{ aiResult.word }} »</span>
-      </div>
-
-      <div class="result-details">
-        <p v-if="aiResult.message" class="result-message">{{ aiResult.message }}</p>
-
-        <div
-          v-if="aiResult.matched_words && aiResult.matched_words.length > 1"
-          class="multi-words-info"
-        >
-          <span>Signe commun ({{ aiResult.label || aiResult.true_label }}) :</span>
-          <strong>{{ aiResult.matched_words.join(", ") }}</strong>
+      <div v-if="isChecking" class="ai-result checking">Analyse en cours...</div>
+      <div v-else-if="aiError" class="ai-result error">{{ aiError }}</div>
+      <div
+        v-else-if="aiResult"
+        class="ai-result"
+        :class="{ success: aiResult.is_valid, invalid: !aiResult.is_valid }"
+      >
+        <div class="status-badge">
+          <span v-if="aiResult.is_valid">✓ Signe validé pour « {{ word.string }} » !</span>
+          <span v-else>✗ Le modèle a deviné : « {{ aiResult.word }} »</span>
         </div>
 
-        <span v-if="aiResult.confidence !== null" class="confidence">
-          Confiance IA : {{ (aiResult.confidence * 100).toFixed(0) }}%
-        </span>
+        <div class="result-details">
+          <p v-if="aiResult.message" class="result-message">{{ aiResult.message }}</p>
+
+          <div
+            v-if="aiResult.matched_words && aiResult.matched_words.length > 1"
+            class="multi-words-info"
+          >
+            <span>Signe commun ({{ aiResult.label || aiResult.true_label }}) :</span>
+            <strong>{{ aiResult.matched_words.join(", ") }}</strong>
+          </div>
+
+          <span v-if="aiResult.confidence !== null" class="confidence">
+            Confiance IA : {{ (aiResult.confidence * 100).toFixed(0) }}%
+          </span>
+        </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { ref } from "vue"
 import VideoCard from "./cards/videoCard.vue"
+import BigButton from "./buttons/bigButton.vue"
 import { ApiClass } from "@/api/api"
 import type { AIWordResponse } from "@/types/word"
 
@@ -48,19 +59,23 @@ const props = withDefaults(
       video: string
     }
     showTitle?: boolean
+    showSuccess?: boolean
   }>(),
   {
     showTitle: true,
+    showSuccess: false,
   },
 )
+
+const emit = defineEmits<{
+  "validation-success": []
+  "success-continue": []
+}>()
 
 const videoCardRef = ref<InstanceType<typeof VideoCard> | null>(null)
 const isChecking = ref(false)
 const aiResult = ref<AIWordResponse | null>(null)
 const aiError = ref("")
-
-const cameraActive = computed(() => Boolean(videoCardRef.value?.cameraActive))
-const isCameraRecording = computed(() => Boolean(videoCardRef.value?.isRecording))
 
 async function onRecordingReady(blob: Blob) {
   const formData = new FormData()
@@ -71,6 +86,9 @@ async function onRecordingReady(blob: Blob) {
   isChecking.value = true
   try {
     aiResult.value = await ApiClass.tryWord(formData, props.word.string)
+    if (aiResult.value.is_valid) {
+      emit("validation-success")
+    }
   } catch {
     aiError.value = "Impossible d'analyser l'enregistrement"
   } finally {
@@ -78,13 +96,32 @@ async function onRecordingReady(blob: Blob) {
   }
 }
 
+async function activateCamera() {
+  return (await videoCardRef.value?.activateCamera()) ?? false
+}
+
+function stopCamera() {
+  videoCardRef.value?.stopCamera()
+}
+
+function cancelRecording() {
+  videoCardRef.value?.cancelRecording()
+}
+
+function startRecording() {
+  videoCardRef.value?.startRecording()
+}
+
+function stopRecording() {
+  videoCardRef.value?.stopRecording()
+}
+
 defineExpose({
-  activateCamera: () => videoCardRef.value?.activateCamera(),
-  stopCamera: () => videoCardRef.value?.stopCamera(),
-  startRecording: () => videoCardRef.value?.startRecording(),
-  stopRecording: () => videoCardRef.value?.stopRecording(),
-  cameraActive,
-  isRecording: isCameraRecording,
+  activateCamera,
+  stopCamera,
+  cancelRecording,
+  startRecording,
+  stopRecording,
 })
 </script>
 <style scoped>
@@ -99,6 +136,35 @@ defineExpose({
     font-size: 18px;
     font-weight: bold;
     color: var(--color-black);
+  }
+
+  .success-view {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    padding-top: 22px;
+  }
+
+  .success-icon {
+    width: 220px;
+    height: 220px;
+    border-radius: 32px;
+    background-color: var(--color-lightpink);
+  }
+
+  .success-message {
+    color: var(--color-darkpurple);
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-bold);
+    text-align: center;
+    line-height: 1.25;
+
+    strong {
+      display: block;
+      font-size: var(--font-size-title);
+    }
   }
 
   .ai-result {

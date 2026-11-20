@@ -13,14 +13,12 @@
     <main v-if="lesson" class="lesson-content">
       <div class="sticky-block">
         <div v-if="lesson.words.length > 1" class="stepper" aria-label="Progression de la leçon">
-          <button
+          <div
             v-for="(word, index) in lesson.words"
             :key="word.id"
-            type="button"
             class="step-indicator"
             :class="{ active: index === currentWordIndex, done: index < currentWordIndex }"
-            :aria-label="`Étape ${index + 1} : ${word.string}`"
-            @click="setCurrentWord(index)"
+            :aria-label="`Étape ${index + 1}`"
           />
         </div>
 
@@ -37,15 +35,26 @@
         :video-src="currentWordVideoSrc"
         :word="currentWord"
         :show-title="false"
+        :show-success="lessonStep === 'success'"
+        @validation-success="handleValidationSuccess"
+        @success-continue="continueAfterSuccess"
       />
 
-      <div class="lesson-actions" :class="{ 'single-action': lessonStep === 'preview' }">
+      <div
+        v-if="lessonStep !== 'success'"
+        class="lesson-actions"
+        :class="{ 'single-action': lessonStep === 'preview' }"
+      >
         <template v-if="lessonStep === 'preview'">
           <BigButton type="primary" @click="activateCameraStep">A moi de jouer</BigButton>
         </template>
+        <template v-else-if="lessonStep === 'camera-ready'">
+          <BigButton type="secondary" @click="replayCurrentWord">Revoir la vidéo</BigButton>
+          <BigButton type="primary" @click="startRecordingStep">Démarrer l'enregistrement</BigButton>
+        </template>
         <template v-else>
           <BigButton type="secondary" @click="replayCurrentWord">Revoir la vidéo</BigButton>
-          <BigButton type="primary" @click="handleValidation">Je valide</BigButton>
+          <BigButton type="primary" @click="stopRecordingStep">Arrêter l'enregistrement</BigButton>
         </template>
       </div>
     </main>
@@ -66,24 +75,19 @@ const router = useRouter()
 const lesson = ref<LessonWithWords | null>(null)
 const currentWordIndex = ref(0)
 const videoReplayKey = ref(0)
-const lessonStep = ref<"preview" | "camera">("preview")
+const lessonStep = ref<"preview" | "camera-ready" | "recording" | "success">("preview")
 const videoBlockRef = ref<{
-  activateCamera: () => void
+  activateCamera: () => Promise<boolean>
   stopCamera: () => void
+  cancelRecording: () => void
   startRecording: () => void
   stopRecording: () => void
-  cameraActive: boolean
-  isRecording: boolean
 } | null>(null)
 
 const lessonId = computed(() => Number(route.params.lessonId ?? 0))
 const currentWord = computed(() => lesson.value?.words[currentWordIndex.value] ?? null)
 const currentWordVideoSrc = computed(() =>
   currentWord.value ? ApiClass.getVideoUrl(currentWord.value.video) : "",
-)
-
-const isLastWord = computed(
-  () => !!lesson.value && currentWordIndex.value >= lesson.value.words.length - 1,
 )
 
 async function loadLesson() {
@@ -97,20 +101,19 @@ async function loadLesson() {
   try {
     lesson.value = await ApiClass.getLessonById(id)
     currentWordIndex.value = 0
+    lessonStep.value = "preview"
   } catch (error) {
     console.error("Error fetching lesson details:", error)
     await router.push({ name: "home" })
   }
 }
 
-function setCurrentWord(index: number) {
-  if (!lesson.value || index < 0 || index >= lesson.value.words.length) return
-  currentWordIndex.value = index
-}
-
 async function activateCameraStep() {
-  lessonStep.value = "camera"
-  await videoBlockRef.value?.activateCamera()
+  if (!videoBlockRef.value) return
+  const granted = await videoBlockRef.value.activateCamera()
+  if (granted) {
+    lessonStep.value = "camera-ready"
+  }
 }
 
 function replayCurrentWord() {
@@ -119,30 +122,37 @@ function replayCurrentWord() {
   videoReplayKey.value += 1
 }
 
-function handleValidation() {
+function startRecordingStep() {
   if (!videoBlockRef.value) return
-
-  if (videoBlockRef.value.isRecording) {
-    videoBlockRef.value.stopRecording()
-    return
-  }
-
+  lessonStep.value = "recording"
   videoBlockRef.value.startRecording()
 }
 
-function closeLesson() {
-  void router.push({ name: "home" })
+function stopRecordingStep() {
+  if (!videoBlockRef.value) return
+  lessonStep.value = "camera-ready"
+  videoBlockRef.value.stopRecording()
 }
 
-function goToNextWord() {
+function handleValidationSuccess() {
+  lessonStep.value = "success"
+}
+
+function continueAfterSuccess() {
   if (!lesson.value) return
 
-  if (isLastWord.value) {
+  if (currentWordIndex.value >= lesson.value.words.length - 1) {
     closeLesson()
     return
   }
 
   currentWordIndex.value += 1
+  replayCurrentWord()
+}
+
+function closeLesson() {
+  replayCurrentWord()
+  void router.push({ name: "home" })
 }
 
 watch(
@@ -243,13 +253,10 @@ onMounted(() => {
 }
 
 .step-indicator {
-  appearance: none;
   width: 100%;
   height: 10px;
   background: rgba(42, 0, 107, 0.2);
-  border: none;
   border-radius: 999px;
-  cursor: pointer;
   transition:
     background 0.2s ease,
     transform 0.2s ease;
