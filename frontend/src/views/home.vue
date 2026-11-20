@@ -1,51 +1,32 @@
 <template>
-  <div class="home-container">
-    <div class="stats-row">
-      <span class="stats-text">Gagne des points, vite !</span>
-      <div class="points">
-        <svg class="star-icon" viewBox="0 0 20 20" fill="currentColor">
-          <path
-            d="M10 0 L12.6 6.9 L20 7.6 L14.4 12.4 L16.2 20 L10 15.9 L3.8 20 L5.6 12.4 L0 7.6 L7.4 6.9 Z"
-          />
-        </svg>
-        <span>{{ points }} points</span>
+  <div class="home-container page-container">
+    <div class="home-header page-header">
+      <TitleLogoBlock />
+      <div class="score-bubble"></div>
+    </div>
+
+    <h2 class="lessons-title">Tes leçons :</h2>
+    <div class="content-container">
+      <div class="list">
+        <LessonCard
+          v-for="lesson in lessons"
+          :key="lesson.id"
+          :lesson="lesson"
+          :selected="selectedLesson === lesson.id"
+          @click="selectLesson(lesson)"
+          @start="startLesson(lesson.id)"
+        />
       </div>
     </div>
-
-    <div class="title">Tes leçons</div>
-
-    <div class="list">
-      <LessonCard
-        v-for="(lesson, index) in lessons"
-        :key="lesson.id"
-        :lesson="lesson"
-        :color-index="index"
-        :selected="selectedLesson === lesson.id"
-        @click="selectLesson(lesson)"
-        @start="startLesson(lesson.id)"
-      />
-    </div>
   </div>
-
-  <ModalScreen v-model="showLessonModal">
-    <div v-if="currentWord" class="lesson-modal-content">
-      <VideoBlock
-        :key="currentWord.id"
-        :video-src="currentWordVideoSrc"
-        :word="currentWord"
-      />
-    </div>
-  </ModalScreen>
 </template>
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
+import { useRouter } from "vue-router"
 import LessonCard from "@/components/cards/lessonCard.vue"
-import ModalScreen from "@/components/modalScreen.vue"
-import VideoBlock from "@/components/videoBlock.vue"
+import TitleLogoBlock from "@/components/titleLogoBlock.vue"
 import { ApiClass } from "@/api/api"
 import type { Lesson, LessonWithWords } from "@/types/lesson"
-
-const points = ref(440)
 
 // Placeholder lessons so the list doesn't look empty while only a couple of
 // real lessons exist in the backend. Negative ids keep them from ever
@@ -74,22 +55,12 @@ function selectLesson(lesson: Lesson) {
   selectedLesson.value = lesson.id
 }
 
-const showLessonModal = ref(false)
-const activeLesson = ref<LessonWithWords | null>(null)
-
-const currentWord = computed(() => {
-  return activeLesson.value?.words[0] ?? null
-})
-
-const currentWordVideoSrc = computed(() => {
-  return currentWord.value ? ApiClass.getVideoUrl(currentWord.value.video) : ""
-})
+const router = useRouter()
 
 function startLesson(lessonId: number) {
   const lesson = fetchedLessons.value.find((lesson) => lesson.id === lessonId)
   if (!lesson || lesson.words.length === 0) return
-  activeLesson.value = lesson
-  showLessonModal.value = true
+  router.push({ name: "lesson", params: { lessonId: String(lessonId) } })
 }
 
 async function fetchLessons() {
@@ -103,30 +74,30 @@ async function fetchLessons() {
 onMounted(fetchLessons)
 </script>
 <style scoped>
-.home-container {
-  width: 90%;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-.stats-row {
-  display: flex;
-  align-items: center;
+.home-header {
+  flex-direction: row;
   justify-content: space-between;
-  gap: 12px;
+  flex-shrink: 0;
 }
-.stats-text {
-  font-family: var(--font-family);
-  font-size: var(--font-size-h3);
-  font-weight: var(--font-weight-regular);
+.score-bubble {
+  width: 1px;
+  height: 1px;
 }
+.lessons-title {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  margin-bottom: 20px;
+  background: var(--color-lightyellow);
+}
+
 .points {
   display: flex;
   align-items: center;
   gap: 6px;
   color: var(--color-pink);
   font-family: var(--font-family);
-  font-size: var(--font-size-h3);
+  font-size: var(--font-size-h4);
   font-weight: var(--font-weight-bold);
   flex-shrink: 0;
 }
@@ -141,9 +112,9 @@ onMounted(fetchLessons)
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   gap: 16px;
   width: 100%;
+  padding-bottom: 30px;
 }
 
 .lesson-modal-content {
@@ -153,5 +124,4 @@ onMounted(fetchLessons)
   align-items: center;
   gap: 15px;
 }
-
 </style>

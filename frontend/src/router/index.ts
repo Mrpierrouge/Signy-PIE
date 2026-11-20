@@ -22,6 +22,11 @@ const router = createRouter({
       name: "lexique",
       component: () => import("../views/lexique.vue"),
     },
+    {
+      path: "/lesson/:lessonId",
+      name: "lesson",
+      component: () => import("../views/lesson.vue"),
+    },
   ],
 })
 

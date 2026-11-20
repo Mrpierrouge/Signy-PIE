@@ -24,13 +24,13 @@ const videoSrc = computed(() => ApiClass.getVideoUrl(props.word.video))
   align-items: center;
   gap: 15px;
   padding: 15px;
-  border: 3px solid var(--color-lightblue);
+  border: 3px solid var(--color-darkpurple);
   border-radius: 20px;
 
   .word-title {
     font-size: 18px;
     font-weight: bold;
-    color: var(--color-white);
+    color: var(--color-darkpurple);
   }
 }
 </style>

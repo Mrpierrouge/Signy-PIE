@@ -26,7 +26,12 @@
 </template>
 <script setup lang="ts">
 import { ref, onBeforeUnmount, watch } from "vue"
-import { detectFrame, FEATURE_SIZE, normalizeSequence, preloadHolisticExtractor } from "@/lib/holisticExtractor"
+import {
+  detectFrame,
+  FEATURE_SIZE,
+  normalizeSequence,
+  preloadHolisticExtractor,
+} from "@/lib/holisticExtractor"
 import { encodeNpyFloat32 } from "@/lib/npy"
 
 const props = defineProps<{
@@ -68,7 +73,7 @@ watch(
   { flush: "post" },
 )
 
-async function activateCamera() {
+async function activateCamera(): Promise<boolean> {
   try {
     stream = await navigator.mediaDevices.getUserMedia({ video: true })
     if (cameraVideo.value) {
@@ -79,13 +84,25 @@ async function activateCamera() {
     // Warm up the landmarker now so the first recording isn't stalled
     // waiting for the WASM runtime + model to load.
     preloadHolisticExtractor()
+    return true
   } catch {
     errorMessage.value = "Accès à la caméra refusé"
+    return false
   }
 }
 
+function cancelRecording() {
+  if (!isRecording.value) return
+  isRecording.value = false
+  if (captureTimer) {
+    clearTimeout(captureTimer)
+    captureTimer = null
+  }
+  capturedFrames = []
+}
+
 function stopCamera() {
-  stopRecording()
+  cancelRecording()
   stream?.getTracks().forEach((track) => track.stop())
   stream = null
   cameraActive.value = false
@@ -131,6 +148,7 @@ onBeforeUnmount(stopCamera)
 defineExpose({
   activateCamera,
   stopCamera,
+  cancelRecording,
   startRecording,
   stopRecording,
   cameraActive,
@@ -140,7 +158,7 @@ defineExpose({
 <style scoped>
 .video-card {
   background-color: var(--color-lightgray);
-  width: 100%;
+  width: 80%;
   border-radius: 20px;
   overflow: hidden;
   position: relative;

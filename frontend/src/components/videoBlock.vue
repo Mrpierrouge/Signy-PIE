@@ -1,68 +1,75 @@
 <template>
   <div class="video-block">
-    <h2 class="word-title">{{ word.string }}</h2>
-    <videoCard ref="videoCardRef" :video-src="videoSrc" @recording-ready="onRecordingReady" />
-    <button
-      class="play-button"
-      v-if="!videoCardRef?.cameraActive"
-      @click="videoCardRef?.activateCamera()"
-    >
-      A moi de jouer
-    </button>
+    <h2 v-if="showTitle" class="word-title">{{ word.string }}</h2>
+    <div v-if="showSuccess" class="success-view">
+      <div class="success-icon" aria-hidden="true" />
+      <p class="success-message">
+        Bravo tu sais dire
+        <strong>{{ word.string }} !</strong>
+      </p>
+      <BigButton type="primary" @click="emit('success-continue')">Je continue</BigButton>
+    </div>
     <template v-else>
-      <button class="play-button" @click="videoCardRef?.stopCamera()">Revenir à la vidéo</button>
-      <button
-        class="play-button"
-        v-if="!videoCardRef?.isRecording"
-        @click="videoCardRef?.startRecording()"
+      <videoCard ref="videoCardRef" :video-src="videoSrc" @recording-ready="onRecordingReady" />
+
+      <div v-if="isChecking" class="ai-result checking">Analyse en cours...</div>
+      <div v-else-if="aiError" class="ai-result error">{{ aiError }}</div>
+      <div
+        v-else-if="aiResult"
+        class="ai-result"
+        :class="{ success: aiResult.is_valid, invalid: !aiResult.is_valid }"
       >
-        Démarrer l'enregistrement
-      </button>
-      <button class="play-button stop-button" v-else @click="videoCardRef?.stopRecording()">
-        Arrêter l'enregistrement
-      </button>
-    </template>
-
-    <div v-if="isChecking" class="ai-result checking">Analyse en cours...</div>
-    <div v-else-if="aiError" class="ai-result error">{{ aiError }}</div>
-    <div
-      v-else-if="aiResult"
-      class="ai-result"
-      :class="{ success: aiResult.is_valid, invalid: !aiResult.is_valid }"
-    >
-      <div class="status-badge">
-        <span v-if="aiResult.is_valid">✓ Signe validé pour « {{ word.string }} » !</span>
-        <span v-else>✗ Le modèle a deviné : « {{ aiResult.word }} »</span>
-      </div>
-
-      <div class="result-details">
-        <p v-if="aiResult.message" class="result-message">{{ aiResult.message }}</p>
-
-        <div v-if="aiResult.matched_words && aiResult.matched_words.length > 1" class="multi-words-info">
-          <span>Signe commun ({{ aiResult.label || aiResult.true_label }}) :</span>
-          <strong>{{ aiResult.matched_words.join(", ") }}</strong>
+        <div class="status-badge">
+          <span v-if="aiResult.is_valid">✓ Signe validé pour « {{ word.string }} » !</span>
+          <span v-else>✗ Le modèle a deviné : « {{ aiResult.word }} »</span>
         </div>
 
-        <span v-if="aiResult.confidence !== null" class="confidence">
-          Confiance IA : {{ (aiResult.confidence * 100).toFixed(0) }}%
-        </span>
+        <div class="result-details">
+          <p v-if="aiResult.message" class="result-message">{{ aiResult.message }}</p>
+
+          <div
+            v-if="aiResult.matched_words && aiResult.matched_words.length > 1"
+            class="multi-words-info"
+          >
+            <span>Signe commun ({{ aiResult.label || aiResult.true_label }}) :</span>
+            <strong>{{ aiResult.matched_words.join(", ") }}</strong>
+          </div>
+
+          <span v-if="aiResult.confidence !== null" class="confidence">
+            Confiance IA : {{ (aiResult.confidence * 100).toFixed(0) }}%
+          </span>
+        </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 <script setup lang="ts">
 import { ref } from "vue"
 import VideoCard from "./cards/videoCard.vue"
-import { ApiClass } from "@/api/api.ts"
+import BigButton from "./buttons/bigButton.vue"
+import { ApiClass } from "@/api/api"
 import type { AIWordResponse } from "@/types/word"
 
-const props = defineProps<{
-  videoSrc: string
-  word: {
-    id?: number
-    string: string
-    video: string
-  }
+const props = withDefaults(
+  defineProps<{
+    videoSrc: string
+    word: {
+      id?: number
+      string: string
+      video: string
+    }
+    showTitle?: boolean
+    showSuccess?: boolean
+  }>(),
+  {
+    showTitle: true,
+    showSuccess: false,
+  },
+)
+
+const emit = defineEmits<{
+  "validation-success": []
+  "success-continue": []
 }>()
 
 const videoCardRef = ref<InstanceType<typeof VideoCard> | null>(null)
@@ -79,39 +86,87 @@ async function onRecordingReady(blob: Blob) {
   isChecking.value = true
   try {
     aiResult.value = await ApiClass.tryWord(formData, props.word.string)
+    if (aiResult.value.is_valid) {
+      emit("validation-success")
+    }
   } catch {
     aiError.value = "Impossible d'analyser l'enregistrement"
   } finally {
     isChecking.value = false
   }
 }
+
+async function activateCamera() {
+  return (await videoCardRef.value?.activateCamera()) ?? false
+}
+
+function stopCamera() {
+  videoCardRef.value?.stopCamera()
+}
+
+function cancelRecording() {
+  videoCardRef.value?.cancelRecording()
+}
+
+function startRecording() {
+  videoCardRef.value?.startRecording()
+}
+
+function stopRecording() {
+  videoCardRef.value?.stopRecording()
+}
+
+defineExpose({
+  activateCamera,
+  stopCamera,
+  cancelRecording,
+  startRecording,
+  stopRecording,
+})
 </script>
 <style scoped>
 .video-block {
-  width: 90%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 15px;
 
-  .play-button {
-    background-color: var(--color-darkpurple);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-
-    &.stop-button {
-      background-color: #d43d3d;
-    }
-  }
   .word-title {
     font-size: 18px;
     font-weight: bold;
     color: var(--color-black);
+  }
+
+  .success-view {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+    padding-top: 22px;
+  }
+
+  .success-icon {
+    width: 270px;
+    height: 250px;
+    background-image: url("@/assets/icons/success-page-logo.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+
+  .success-message {
+    color: var(--color-darkpurple);
+    font-size: var(--font-size-h2);
+    font-weight: var(--font-weight-bold);
+    text-align: center;
+    line-height: 1.25;
+
+    strong {
+      display: block;
+      font-size: var(--font-size-title);
+    }
   }
 
   .ai-result {

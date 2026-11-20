@@ -1,4 +1,5 @@
 <template>
+  <!-- DEPRECATED: kept for the old scroll-up modal transition while the new lesson page is used. -->
   <div class="modal-screen" :class="{ open: modelValue }">
     <button class="close-button" @click="close">Fermer</button>
     <div class="modal-content">
