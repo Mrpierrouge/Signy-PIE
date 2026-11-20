@@ -191,7 +191,7 @@ Le backend recherche le mot dans `word_corespondance` avant de valider la prédi
 
 ## Modèle IA
 
-- **Fichier** : `backend/lsf_model.onnx`
+- **Fichier** : `backend/P4-SC4L.onnx`
 - **Métadonnées** : `backend/model_meta.json`
 - **Input** : keypoints MediaPipe Holistic, shape `[T, 444]`, rééchantillonnés à 60 frames
 - **Output** : logits sur 6 classes → softmax → label prédit
@@ -278,7 +278,7 @@ Signy-PIE/
 │   ├── schemas.py              # Schémas Pydantic
 │   ├── database.py             # Connexion DB (SQLite / PostgreSQL)
 │   ├── ai_service.py           # Chargement ONNX et prédiction
-│   ├── lsf_model.onnx          # Modèle entraîné
+│   ├── P4-SC4L.onnx            # Modèle entraîné
 │   ├── model_meta.json         # Métadonnées du modèle (classes, dims)
 │   ├── requirements.txt
 │   ├── Dockerfile

@@ -103,7 +103,7 @@ class PredictionResult:
 
 class VideoWordPredictor:
     def __init__(self) -> None:
-        self.model_path = Path(os.getenv("AI_MODEL_PATH", "lsf_model.onnx"))
+        self.model_path = Path(os.getenv("AI_MODEL_PATH", "P4-SC4L.onnx"))
         meta_labels = _load_labels_from_meta(self.model_path)
         env_labels = _parse_labels(os.getenv("AI_LABELS"))
         self.labels = meta_labels or env_labels
