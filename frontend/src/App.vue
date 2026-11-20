@@ -56,6 +56,7 @@ import InstallBanner from "./components/installBanner.vue"
   align-items: center;
   justify-content: center;
   background: var(--color-lightyellow);
+  margin-bottom: 5vh;
 }
 input {
   background-color: var(--color-lightyellow);
@@ -65,5 +66,28 @@ input {
   font-family: var(--font-family);
   font-size: var(--font-size-body);
   color: var(--color-darkpurple);
+}
+h2 {
+  font-family: var(--font-family);
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-darkpurple);
+}
+.page-container {
+  width: 90%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+.content-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 </style>

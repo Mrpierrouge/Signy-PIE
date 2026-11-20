@@ -53,7 +53,7 @@ defineEmits<{
 </script>
 <style scoped>
 .lesson-card {
-  width: 90%;
+  width: 100%;
   padding: 18px 20px;
   border-radius: 20px;
   background-color: var(--color-babypurple);

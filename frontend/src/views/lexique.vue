@@ -1,7 +1,7 @@
 <template>
   <div class="lexique-page">
     <div class="header page-header">
-      <div>Lexique</div>
+      <h2>Lexique</h2>
       <div class="search">
         <input type="text" placeholder="Rechercher un mot..." v-model="searchQuery" />
       </div>

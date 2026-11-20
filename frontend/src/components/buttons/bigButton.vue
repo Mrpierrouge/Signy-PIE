@@ -1,12 +1,12 @@
 <template>
-  <div class="button" :class="type" @click="props.onClick">
+  <button class="button" :class="type" @click="props.onClick">
     <div
       v-if="props.icon"
       class="icon"
-      :style="{ maskImage: `url(/src/assets/icons/${props.icon}.png)` }"
+      :style="{ maskImage: `url(@/assets/icons/${props.icon}.png)` }"
     ></div>
     <slot></slot>
-  </div>
+  </button>
 </template>
 <script setup lang="ts">
 const props = withDefaults(
